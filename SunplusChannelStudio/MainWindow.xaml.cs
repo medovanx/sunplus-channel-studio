@@ -107,6 +107,7 @@ public partial class MainWindow : Window
             if (cleanup && _db is not null) Cleanup_Click(this, new RoutedEventArgs());
         };
         UpdateChrome();
+        PlayerWindow.WarmUp(); // start VLC in the background now, so the first Watch does not wait for it
     }
 
     // ---------- Columns ----------
@@ -385,18 +386,23 @@ public partial class MainWindow : Window
 
     // ---------- Sort by category ----------
 
-    void Sort_Click(object sender, RoutedEventArgs e)
+    async void Sort_Click(object sender, RoutedEventArgs e)
     {
         ClearColumnSort(); // sorting by category reorders the list itself
         if (_db is null || !CanReorder()) return;
         CommitEdits();
         // If the stream list is still loading, its copy on disk is used so the result never depends on timing.
-        RebuildCategorizer(LoadedOrCachedCatalog()); // also picks up edits to the rules file
+        StreamCatalog? catalog;
+        Cursor = Cursors.Wait;
+        try { catalog = await LoadedOrCachedCatalogAsync(); }
+        finally { Cursor = null; }
+        if (_db is null) return;
+        RebuildCategorizer(catalog); // also picks up edits to the rules file
         var rows = ActiveGrid == RadioGrid ? _radio : _tv;
         var counts = rows.GroupBy(r => r.CategoryValue).ToDictionary(g => g.Key, g => g.Count());
         var window = new SortWindow(counts, hasRadio: rows == _tv && _radio.Count > 0) { Owner = this };
         bool applied = window.ShowDialog() == true;
-        RebuildCategorizer(LoadedOrCachedCatalog()); // the rules may have been edited from the Sort window
+        RebuildCategorizer(catalog); // the rules may have been edited from the Sort window
         if (!applied) return;
 
         void Apply(ObservableCollection<ChannelRow> list)
@@ -466,9 +472,15 @@ public partial class MainWindow : Window
 
     StreamCatalog? _cachedCatalog;
 
-    /// <summary>The loaded catalogue, else the copy on disk (read once), else null. Never downloads.</summary>
-    StreamCatalog? LoadedOrCachedCatalog() =>
-        _catalog is { IsCompletedSuccessfully: true } t ? t.Result : _cachedCatalog ??= CatalogCache.TryLoadCached(CatalogFolder);
+    /// <summary>
+    /// The loaded catalogue, else the copy on disk, else null. Never downloads. Reading the 12 MB copy takes
+    /// most of a second, so it happens on a background thread, once.
+    /// </summary>
+    async Task<StreamCatalog?> LoadedOrCachedCatalogAsync()
+    {
+        if (_catalog is { IsCompletedSuccessfully: true } t) return t.Result;
+        return _cachedCatalog ??= await Task.Run(() => CatalogCache.TryLoadCached(CatalogFolder));
+    }
 
     void RebuildCategorizer(StreamCatalog? catalog = null)
     {
@@ -587,16 +599,18 @@ public partial class MainWindow : Window
         catch (IOException) { return false; }
     }
 
-    void ImportFile(string path)
+    async void ImportFile(string path)
     {
         if (_db is null) return;
         ImportedList list;
+        Cursor = Cursors.Wait;
         try
         {
-            // Another channel database merges in; anything else is read as a channel list.
-            list = IsDatabase(path)
+            // Another channel database merges in; anything else is read as a channel list. Large lists take
+            // a while to read, so this runs off the UI thread.
+            list = await Task.Run(() => IsDatabase(path)
                 ? ImportedList.FromDatabase(ChannelDatabase.Load(path), Path.GetFileName(path))
-                : ListReader.Read(path);
+                : ListReader.Read(path));
         }
         catch (Exception ex) when (ex is ImportFormatException or DatabaseFormatException or IOException or UnauthorizedAccessException)
         {
@@ -609,6 +623,7 @@ public partial class MainWindow : Window
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
+        finally { Cursor = null; }
         ImportList(list);
     }
 

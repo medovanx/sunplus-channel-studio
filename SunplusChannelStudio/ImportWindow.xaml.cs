@@ -111,10 +111,24 @@ public partial class ImportWindow : Window
         if (IsLoaded) Replan();
     }
 
-    void Replan()
+    int _planVersion;
+
+    /// <summary>
+    /// Works the changes out on a background thread: matching thousands of services against the channel list
+    /// can take a while. A newer request replaces an older one, so quick satellite changes never show stale rows.
+    /// </summary>
+    async void Replan()
     {
         if (_db.Satellites.Count == 0) return;
-        var changes = ImportPlanner.Plan(_db, SatelliteIndex, _list.At(Position));
+        int version = ++_planVersion;
+        int satellite = SatelliteIndex;
+        var source = _list.At(Position);
+        ApplyButton.IsEnabled = false;
+        Cursor = System.Windows.Input.Cursors.Wait;
+        var changes = await Task.Run(() => ImportPlanner.Plan(_db, satellite, source));
+        if (version != _planVersion) return;
+        Cursor = null;
+        ApplyButton.IsEnabled = true;
         // Scrambled channels are left out unless the user asks for them: a free-to-air receiver cannot show them.
         bool include = ScrambledBox.IsChecked == true;
         foreach (var c in changes.Where(c => c.Scrambled)) c.Selected = include;

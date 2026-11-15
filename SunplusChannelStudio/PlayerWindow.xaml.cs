@@ -8,8 +8,16 @@ namespace SunplusChannelStudio;
 /// <summary>Plays a channel's public live stream, trying the next source when one fails.</summary>
 public partial class PlayerWindow : Window
 {
-    static LibVLC? _vlc;
-    readonly MediaPlayer _player;
+    /// <summary>
+    /// VLC is started once, on a background thread: loading it scans its plugins, which would freeze the window.
+    /// <see cref="WarmUp"/> starts it when the app opens so the first Watch does not wait.
+    /// </summary>
+    static readonly Lazy<Task<LibVLC>> Vlc = new(() => Task.Run(CreateVlc));
+
+    public static void WarmUp() => _ = Vlc.Value;
+
+    LibVLC? _vlc;
+    MediaPlayer? _player;
     readonly IReadOnlyList<LiveStream> _streams;
     readonly bool _capture = Environment.GetEnvironmentVariable("SCS_CAPTURE") == "1";
     int _current = -1;
@@ -32,26 +40,31 @@ public partial class PlayerWindow : Window
             VolumeSlider.Value = 0;
         }
 
-        _vlc ??= CreateVlc();
-        // VLC must not take the mouse and keys itself, so double-click and F11 reach this window.
-        _player = new MediaPlayer(_vlc) { Volume = (int)VolumeSlider.Value, Mute = VolumeSlider.Value == 0, EnableMouseInput = false, EnableKeyInput = false };
-        _player.Playing += (_, _) => Dispatcher.BeginInvoke(() => Status("Play.Playing"));
-        _player.Buffering += (_, e) => Dispatcher.BeginInvoke(() =>
-        {
-            ShowSpinner(e.Cache < 100);
-            StatusLabel.Text = e.Cache < 100 ? Loc.Format("Play.Buffering", (int)e.Cache) : Loc.Get("Play.Playing");
-        });
-        _player.EncounteredError += (_, _) => Dispatcher.BeginInvoke(TryNext);
-        _player.EndReached += (_, _) => Dispatcher.BeginInvoke(TryNext);
-        Video.MediaPlayer = _player;
-
         foreach (var s in streams)
             SourceBox.Items.Add(new ComboBoxItem { Content = Describe(s), ToolTip = s.Url });
         SourceBox.Visibility = SourceLabel.Visibility = streams.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
         UpdateMute();
         UpdateFullScreenButton();
         FillQualities();
-        Loaded += (_, _) => SourceBox.SelectedIndex = 0;
+        Loaded += async (_, _) =>
+        {
+            Status("Play.Connecting");
+            ShowSpinner(true);
+            _vlc = await Vlc.Value;
+            if (!IsLoaded) return; // closed while VLC was starting
+            // VLC must not take the mouse and keys itself, so double-click and F11 reach this window.
+            _player = new MediaPlayer(_vlc) { Volume = (int)VolumeSlider.Value, Mute = VolumeSlider.Value == 0, EnableMouseInput = false, EnableKeyInput = false };
+            _player.Playing += (_, _) => Dispatcher.BeginInvoke(() => Status("Play.Playing"));
+            _player.Buffering += (_, e) => Dispatcher.BeginInvoke(() =>
+            {
+                ShowSpinner(e.Cache < 100);
+                StatusLabel.Text = e.Cache < 100 ? Loc.Format("Play.Buffering", (int)e.Cache) : Loc.Get("Play.Playing");
+            });
+            _player.EncounteredError += (_, _) => Dispatcher.BeginInvoke(TryNext);
+            _player.EndReached += (_, _) => Dispatcher.BeginInvoke(TryNext);
+            Video.MediaPlayer = _player;
+            SourceBox.SelectedIndex = 0;
+        };
     }
 
     static LibVLC CreateVlc()
@@ -107,6 +120,7 @@ public partial class PlayerWindow : Window
 
     void Play(int index)
     {
+        if (_vlc is null || _player is not { } player) return; // VLC is still starting; the window plays once it is ready
         _current = index;
         var s = _streams[index];
         Status("Play.Connecting");
@@ -116,12 +130,12 @@ public partial class PlayerWindow : Window
         if (HeightCap > 0) options.Add($":adaptive-maxheight={HeightCap}");
         if (s.UserAgent is { } ua) options.Add($":http-user-agent={ua}");
         if (s.Referrer is { } r) options.Add($":http-referrer={r}");
-        var media = new Media(_vlc!, new Uri(s.Url), options.ToArray());
+        var media = new Media(_vlc, new Uri(s.Url), options.ToArray());
         // Starting playback blocks briefly while VLC opens the stream, so keep it off the UI thread.
         // The player holds its own reference once playing, so the media is released after Play.
         ThreadPool.QueueUserWorkItem(_ =>
         {
-            _player.Play(media);
+            player.Play(media);
             media.Dispose();
         });
     }
@@ -215,7 +229,7 @@ public partial class PlayerWindow : Window
     /// <summary>A speaker that shows the level, crossed out at 0; the tooltip says what a click does.</summary>
     void UpdateMute()
     {
-        if (MuteButton is null || _player is null) return;
+        if (MuteButton is null) return;
         double v = VolumeSlider.Value;
         MuteGlyph.Text = v == 0 ? "" : v < 34 ? "" : v < 67 ? "" : "";
         MuteButton.SetResourceReference(ToolTipProperty, v == 0 ? "Play.Unmute" : "Play.Mute");
@@ -223,7 +237,7 @@ public partial class PlayerWindow : Window
 
     void Window_Closed(object? sender, EventArgs e)
     {
-        var player = _player;
+        if (_player is not { } player) return;
         Video.MediaPlayer = null;
         // Stopping can block on a slow network, so release the player in the background.
         ThreadPool.QueueUserWorkItem(_ => { player.Stop(); player.Dispose(); });
