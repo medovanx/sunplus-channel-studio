@@ -29,7 +29,10 @@ Sunplus Channel Studio is a fresh editor for the same files. It reads and writes
 - **Fast search.** Filter thousands of channels by name as you type.
 - **Rename in place.** Press F2 or double-click a name. Arabic names are written in the receiver's own Arabic encoding.
 - **Favourite groups.** Put channels into All, News, Science, Sports, Movies, Kids, Music, Fashion or Financial.
-- **Move to any position.** Send a channel or a whole selection straight to number 1, or anywhere else.
+- **Move to any position.** Type a new number in the # column, or send a whole selection straight to number 1 or anywhere else.
+- **Watch channels.** Preview a channel from a public internet stream before loading the list onto your receiver. Streams come from the open [iptv-org](https://github.com/iptv-org/iptv) catalogue and play inside the app; big news, entertainment and religious channels are usually found, while many smaller channels only broadcast by satellite.
+- **Merge databases.** Bring the channels of another `.bin` database into the open one, for example `english_db.bin` and `english2_db.bin`. The preview leaves out channels you already have and keeps the merged channels' favourites and flags.
+- **Undo and revert.** `Ctrl+Z` and `Ctrl+Y` step back and forward through every change, and **Revert** returns to the file as last opened or saved.
 - **Import channel lists.** Update a satellite from an Enigma2 `lamedb`, a KingOfSat `.ini` download or a dtv-scan-tables file. You see every proposed change first: new transponders, symbol rate fixes, new channels and stale PIDs. Nothing is deleted, scrambled channels are left out unless you ask for them, and renames start unticked so your own names stay.
 - **Clean up.** Find scrambled (pay) channels, test and spare placeholders, channels with no picture or sound, and duplicates, review the list and remove what you do not want.
 - **Free or scrambled at a glance.** A column shows which channels the receiver marked as scrambled.
@@ -92,7 +95,7 @@ dotnet publish SunplusChannelStudio -c Release -r win-x64 --self-contained false
 
 1. Copy the channel database from your receiver (for example over USB) to your computer.
 2. Open it with **Open**, or drop the file on the window. You can also open it from the command line: `SunplusChannelStudio.exe english_db.bin`.
-3. Optional: use **Import** to bring in an up-to-date list for your satellite (or drop the list file on the window), and **Clean up** to remove channels you cannot watch.
+3. Optional: use **Import** to merge another database or bring in an up-to-date list for your satellite (or drop the list file on the window), **Clean up** to remove channels you cannot watch, and **Watch** to preview a channel.
 4. Edit the list, then **Save**. Use **Save as** to keep the original file untouched.
 5. Load the saved file back onto the receiver the same way you normally do.
 
@@ -110,6 +113,9 @@ Always keep a copy of the original file. Loading a broken database onto a receiv
 | Move up or down | `Ctrl+Up`, `Ctrl+Down` |
 | Move to a position | `Ctrl+M` |
 | Delete | `Del` |
+| Watch the selected channel | `Ctrl+Enter` |
+| Undo | `Ctrl+Z` |
+| Redo | `Ctrl+Y` |
 
 ## Project layout
 
@@ -138,7 +144,7 @@ SCS_SAMPLES=/path/to/databases dotnet test
 
 The file format was worked out from the original STB Channel Editor for Sunplus DK receivers by Khaled Mtair and Abdel Hamid ElFeel, which the community has used for years. Sunplus Channel Studio is a new program written from scratch and shares no code with it.
 
-Language flags come from [flag-icons](https://github.com/lipis/flag-icons) (MIT); see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+Live stream links come from [iptv-org](https://github.com/iptv-org/iptv) (public domain data); the app only plays public links and does not host or record anything. Video playback uses [LibVLCSharp](https://code.videolan.org/videolan/LibVLCSharp) and [libVLC](https://www.videolan.org/vlc/libvlc.html) (LGPL 2.1). Language flags come from [flag-icons](https://github.com/lipis/flag-icons) (MIT); see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
 ## Disclaimer
 

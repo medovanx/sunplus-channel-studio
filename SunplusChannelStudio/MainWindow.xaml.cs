@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -10,6 +11,7 @@ using System.Windows.Media;
 using Microsoft.Win32;
 using SunplusChannelStudio.Core;
 using SunplusChannelStudio.Core.Import;
+using SunplusChannelStudio.Core.Streams;
 
 namespace SunplusChannelStudio;
 
@@ -28,6 +30,14 @@ public partial class MainWindow : Window
     DataGridRow? _pendingSingleSelect;
     InsertionAdorner? _insertion;
     readonly Dictionary<DataGridColumn, string> _headerKeys = [];
+    Task<StreamCatalog>? _catalog;
+
+    // Undo history: the whole database after each edit. A database is about 100 KB, so this stays small.
+    const int HistoryLimit = 200;
+    readonly List<byte[]> _history = [];
+    int _historyIndex = -1;
+    byte[]? _savedBytes;
+    bool _snapshotQueued;
 
     public MainWindow()
     {
@@ -67,6 +77,8 @@ public partial class MainWindow : Window
         ApplyLanguage();
 
         Row.Edited += MarkDirty;
+        // A number typed in the # column moves the channel once the edit has finished.
+        ChannelRow.MoveRequested += (row, target) => Dispatcher.BeginInvoke(() => MoveToNumber(row, target));
         Loaded += (_, _) =>
         {
             // SunplusChannelStudio.exe [database.bin] [--import list]
@@ -75,8 +87,16 @@ public partial class MainWindow : Window
             string? list = imp >= 0 && imp + 1 < args.Count ? args[imp + 1] : null;
             if (imp >= 0) args.RemoveRange(imp, Math.Min(2, args.Count - imp));
             bool cleanup = args.Remove("--cleanup");
+            int w = args.IndexOf("--watch");
+            string? watch = w >= 0 && w + 1 < args.Count ? args[w + 1] : null;
+            if (w >= 0) args.RemoveRange(w, Math.Min(2, args.Count - w));
             if (args.FirstOrDefault() is { } db && File.Exists(db)) OpenFile(db);
             if (list is not null && File.Exists(list) && _db is not null) ImportFile(list);
+            if (watch is not null && _tv.FirstOrDefault(r => r.Name.Contains(watch, StringComparison.OrdinalIgnoreCase)) is { } row)
+            {
+                TvGrid.SelectedItem = row;
+                Watch_Click(this, new RoutedEventArgs());
+            }
             if (cleanup && _db is not null) Cleanup_Click(this, new RoutedEventArgs());
         };
         UpdateChrome();
@@ -107,7 +127,7 @@ public partial class MainWindow : Window
             return col;
         }
 
-        grid.Columns.Add(Text("Col.Number", nameof(ChannelRow.Number), 56, right: true));
+        grid.Columns.Add(Text("Col.Number", nameof(ChannelRow.Position), 56, readOnly: false, right: true));
         var name = Text("Col.Name", nameof(ChannelRow.Name), 0, readOnly: false);
         name.MinWidth = 200;
         grid.Columns.Add(name);
@@ -169,6 +189,7 @@ public partial class MainWindow : Window
         SearchBox.Text = string.Empty;
         _loading = false;
         _dirty = false;
+        ResetHistory();
         Tabs.SelectedItem = TvTab;
         UpdateChrome();
     }
@@ -239,6 +260,42 @@ public partial class MainWindow : Window
         StatusLabel.Text = Loc.Format("Cln.Done", window.Removed);
     }
 
+    // ---------- Watch ----------
+
+    static string CatalogFolder => Path.Combine(Path.GetDirectoryName(App.ErrorLog)!, "iptv");
+
+    async void Watch_Click(object sender, RoutedEventArgs e)
+    {
+        if (Selected().FirstOrDefault() is not { } row) return;
+        StatusLabel.Text = Loc.Get("Watch.Loading");
+        StreamCatalog catalog;
+        try
+        {
+            _catalog ??= Task.Run(() =>
+            {
+                using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+                http.DefaultRequestHeaders.UserAgent.ParseAdd("SunplusChannelStudio");
+                return new CatalogCache(CatalogFolder, http).LoadAsync();
+            });
+            catalog = await _catalog;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or System.Text.Json.JsonException)
+        {
+            _catalog = null; // try again next time
+            UpdateStatus();
+            Say(Loc.Format("Watch.Failed", ex.Message), "Watch.Title", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+        UpdateStatus();
+        var streams = catalog.Find(row.Name);
+        if (streams.Count == 0)
+        {
+            Say(Loc.Format("Watch.NoStream", row.Name), "Watch.Title", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+        new PlayerWindow(row.Name, streams) { Owner = this }.Show();
+    }
+
     static bool IsDatabase(string path)
     {
         try
@@ -254,10 +311,21 @@ public partial class MainWindow : Window
     {
         if (_db is null) return;
         ImportedList list;
-        try { list = ListReader.Read(path); }
-        catch (Exception ex) when (ex is ImportFormatException or IOException or UnauthorizedAccessException)
+        try
         {
-            Say(ex is ImportFormatException f ? Loc.Get("Imp." + f.Problem) : ex.Message, "Imp.CannotRead",
+            // Another channel database merges in; anything else is read as a channel list.
+            list = IsDatabase(path)
+                ? ImportedList.FromDatabase(ChannelDatabase.Load(path), Path.GetFileName(path))
+                : ListReader.Read(path);
+        }
+        catch (Exception ex) when (ex is ImportFormatException or DatabaseFormatException or IOException or UnauthorizedAccessException)
+        {
+            Say(ex switch
+            {
+                ImportFormatException f => Loc.Get("Imp." + f.Problem),
+                DatabaseFormatException d => Loc.Get("Fmt." + d.Problem),
+                _ => ex.Message,
+            }, "Imp.CannotRead",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
@@ -293,6 +361,13 @@ public partial class MainWindow : Window
         }
         _path = path;
         _dirty = false;
+        _savedBytes = _db.ToBytes();
+        if (_historyIndex < 0 || !_history[_historyIndex].AsSpan().SequenceEqual(_savedBytes))
+        {
+            _history.RemoveRange(_historyIndex + 1, _history.Count - _historyIndex - 1);
+            _history.Add(_savedBytes);
+            _historyIndex = _history.Count - 1;
+        }
         UpdateChrome();
         StatusLabel.Text = Loc.Format("Status.Saved", Path.GetFileName(path), _db.Type.Label());
         return true;
@@ -390,6 +465,14 @@ public partial class MainWindow : Window
         MoveRows(rows, picked, target.Value - 1);
     }
 
+    void MoveToNumber(ChannelRow row, int target)
+    {
+        var rows = _tv.Contains(row) ? _tv : _radio.Contains(row) ? _radio : null;
+        if (rows is null || !CanReorder()) return;
+        MoveRows(rows, [row], Math.Clamp(target, 1, rows.Count) - 1);
+        StatusLabel.Text = Loc.Format("Status.Moved", Loc.Channels([row]), row.Number);
+    }
+
     /// <summary>Moves rows as one block, in their current order, so the first lands at <paramref name="index"/>.</summary>
     void MoveRows(ObservableCollection<ChannelRow> rows, List<ChannelRow> picked, int index) =>
         AfterReorder(rows, Reorder.MoveBlock(rows, picked, index));
@@ -478,6 +561,7 @@ public partial class MainWindow : Window
             case Key.Up when ctrl: MoveBy(-1); e.Handled = true; break;
             case Key.Down when ctrl: MoveBy(1); e.Handled = true; break;
             case Key.M when ctrl: MoveTo_Click(sender, e); e.Handled = true; break;
+            case Key.Enter when ctrl: Watch_Click(sender, e); e.Handled = true; break;
         }
     }
 
@@ -646,6 +730,7 @@ public partial class MainWindow : Window
     {
         if (_loading) return;
         _dirty = true;
+        QueueSnapshot();
         // Transponder edits show in the channel list.
         if (Tabs.SelectedItem == TpTab || Tabs.SelectedItem == SatTab)
             foreach (var r in _tv.Concat(_radio)) r.Refresh();
@@ -663,7 +748,7 @@ public partial class MainWindow : Window
         DirtyLabel.Visibility = _dirty ? Visibility.Visible : Visibility.Collapsed;
         var name = _path is null ? null : Path.GetFileName(_path);
         Title = name is null ? "Sunplus Channel Studio" : $"{name}{(_dirty ? " *" : "")} - Sunplus Channel Studio";
-        FileLabel.Text = name is null ? string.Empty : $"{name} ({_db!.Type.Label()})";
+        FileLabel.Text = name ?? string.Empty;
         FileLabel.ToolTip = _path;
         TvTab.Header = Loc.Format("Tab.Tv", _tv.Count);
         RadioTab.Header = Loc.Format("Tab.Radio", _radio.Count);
@@ -688,6 +773,72 @@ public partial class MainWindow : Window
         var parts = new List<string> { Filtering ? Loc.Format("Status.Shown", shown, total) : Loc.Format("Status.Channels", total) };
         if (selected > 0) parts.Add(Loc.Format("Status.Selected", selected));
         StatusLabel.Text = string.Join(Loc.Get("List.Separator"), parts) + ".";
+    }
+
+    // ---------- Undo ----------
+
+    void ResetHistory()
+    {
+        _history.Clear();
+        _savedBytes = _db!.ToBytes();
+        _history.Add(_savedBytes);
+        _historyIndex = 0;
+    }
+
+    /// <summary>Records the state after an edit, once any cell edit in progress has finished.</summary>
+    void QueueSnapshot()
+    {
+        if (_snapshotQueued || _db is null) return;
+        _snapshotQueued = true;
+        Dispatcher.BeginInvoke(() =>
+        {
+            _snapshotQueued = false;
+            if (_db is null) return;
+            SyncToDatabase();
+            var bytes = _db.ToBytes();
+            if (_historyIndex >= 0 && bytes.AsSpan().SequenceEqual(_history[_historyIndex])) return;
+            _history.RemoveRange(_historyIndex + 1, _history.Count - _historyIndex - 1); // drop the redo branch
+            _history.Add(bytes);
+            if (_history.Count > HistoryLimit) _history.RemoveAt(0);
+            _historyIndex = _history.Count - 1;
+            CommandManager.InvalidateRequerySuggested();
+        }, System.Windows.Threading.DispatcherPriority.Background);
+    }
+
+    void Undo_CanExecute(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = _historyIndex > 0;
+    void Redo_CanExecute(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = _historyIndex >= 0 && _historyIndex < _history.Count - 1;
+    void Undo_Executed(object sender, ExecutedRoutedEventArgs e) { if (_historyIndex > 0) Restore(--_historyIndex, "Status.Undone"); }
+    void Redo_Executed(object sender, ExecutedRoutedEventArgs e) { if (_historyIndex < _history.Count - 1) Restore(++_historyIndex, "Status.Redone"); }
+
+    void Revert_CanExecute(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = _db is not null && _dirty;
+
+    /// <summary>Goes back to the file as last opened or saved. The revert itself can be undone.</summary>
+    void Revert_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+        if (_savedBytes is null) return;
+        if (Say(Loc.Get("Dlg.RevertAsk"), "Dlg.RevertTitle", MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) return;
+        CommitEdits();
+        _history.RemoveRange(_historyIndex + 1, _history.Count - _historyIndex - 1);
+        _history.Add(_savedBytes);
+        _historyIndex = _history.Count - 1;
+        Restore(_historyIndex, "Status.Reverted");
+    }
+
+    void Restore(int index, string statusKey)
+    {
+        CommitEdits();
+        _loading = true;
+        var db = ChannelDatabase.Parse(_history[index]);
+        _db = db;
+        Fill(_tv, db.TvChannels);
+        Fill(_radio, db.RadioChannels);
+        FillTransponders();
+        FormatBox.SelectedItem = FormatBox.Items.Cast<ComboBoxItem>().First(i => (DatabaseType)i.Tag == db.Type);
+        _loading = false;
+        _dirty = _savedBytes is null || !_history[index].AsSpan().SequenceEqual(_savedBytes);
+        UpdateChrome();
+        StatusLabel.Text = Loc.Get(statusKey);
+        CommandManager.InvalidateRequerySuggested();
     }
 
     // ---------- Language ----------

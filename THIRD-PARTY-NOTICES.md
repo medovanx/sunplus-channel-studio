@@ -1,5 +1,13 @@
 # Third-party notices
 
+## LibVLC and LibVLCSharp
+
+Video playback uses [libVLC](https://www.videolan.org/vlc/libvlc.html) from the `VideoLAN.LibVLC.Windows` package and [LibVLCSharp](https://code.videolan.org/videolan/LibVLCSharp), both by VideoLAN and licensed under the GNU Lesser General Public License, version 2.1 or later. The libVLC files ship unmodified as separate libraries in the `libvlc` folder next to the program, so they can be replaced. Source code is available from https://code.videolan.org/videolan.
+
+## iptv-org
+
+Live stream links are read from the [iptv-org](https://github.com/iptv-org/iptv) API, released into the public domain (CC0). The links point to third-party streams; this program does not host, record or redistribute them.
+
 ## flag-icons
 
 The language flags in `SunplusChannelStudio/Assets/Languages` are rendered from [flag-icons](https://github.com/lipis/flag-icons).

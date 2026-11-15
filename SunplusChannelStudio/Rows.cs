@@ -42,7 +42,21 @@ public sealed class ChannelRow(Channel channel, ChannelDatabase db) : Row
     public Channel Channel { get; } = channel;
 
     int _number;
-    public int Number { get => _number; set { if (_number != value) { _number = value; Changed(); } } }
+    public int Number { get => _number; set { if (_number != value) { _number = value; Changed(); Changed(nameof(Position)); } } }
+
+    /// <summary>Raised when the user types a new number in the # column; the window does the move.</summary>
+    public static event Action<ChannelRow, int>? MoveRequested;
+
+    /// <summary>The # cell: shows the position, and typing another number moves the channel there.</summary>
+    public string Position
+    {
+        get => Number.ToString();
+        set
+        {
+            if (!int.TryParse(value.Trim(), out int target) || target < 1) throw new ArgumentException(Loc.Get("Val.Number"));
+            if (target != Number) MoveRequested?.Invoke(this, target);
+        }
+    }
 
     public string Name
     {

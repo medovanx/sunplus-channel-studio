@@ -21,7 +21,8 @@ public sealed record ImportedService(
     byte AudioTypeB,
     ushort PcrPid,
     ushort PmtPid,
-    bool Scrambled = false);
+    bool Scrambled = false,
+    byte[]? SourceRecord = null);
 
 /// <summary>What a file gave us: transponders always, channels only from formats that carry them.</summary>
 public sealed class ImportedList
@@ -29,6 +30,32 @@ public sealed class ImportedList
     public required string Format { get; init; }
     public List<ImportedTransponder> Transponders { get; } = [];
     public List<ImportedService> Services { get; } = [];
+
+    /// <summary>Names for the groups in <see cref="Positions"/> when they are satellites of another database.</summary>
+    public Dictionary<int, string> PositionNames { get; } = [];
+
+    public string Label(int position) => PositionNames.TryGetValue(position, out var name) ? name : PositionLabel(position);
+
+    /// <summary>
+    /// Another receiver database as an import source, for merging lists. Satellites become the groups
+    /// (keyed by index), and new channels keep the source's raw record so favourites and flags carry over.
+    /// </summary>
+    public static ImportedList FromDatabase(ChannelDatabase source, string format)
+    {
+        var list = new ImportedList { Format = format };
+        foreach (var (sat, i) in source.Satellites.Select((s, i) => (s, i))) list.PositionNames[i] = sat.Name;
+        ImportedTransponder Tp(Transponder t) => new(t.Frequency, t.Polarization == 0 ? Polarity.Vertical : Polarity.Horizontal, t.SymbolRate, t.SatelliteIndex);
+        list.Transponders.AddRange(source.Transponders.Select(Tp));
+        foreach (var c in source.TvChannels.Concat(source.RadioChannels))
+        {
+            if (source.TransponderOf(c) is not { } tp) continue;
+            list.Services.Add(new ImportedService(c.Name, c.Kind, Tp(tp), c.ServiceId, c.TransportStreamId, c.NetworkId,
+                (ushort)(c.VideoPid & 0x1FFF), (byte)c.VideoType, (ushort)(c.AudioPidA & 0x1FFF), (byte)c.AudioTypeA,
+                (ushort)(c.AudioPidB & 0x1FFF), (byte)c.AudioTypeB, (ushort)(c.PcrPid & 0x1FFF), (ushort)(c.PmtPid & 0x1FFF),
+                c.Scrambled, c.Raw.ToArray()));
+        }
+        return list;
+    }
 
     /// <summary>Orbital positions in the file, in tenths of a degree, east positive. Empty when the file has none.</summary>
     public IReadOnlyList<int> Positions =>
@@ -39,6 +66,7 @@ public sealed class ImportedList
     {
         if (position is null) return this;
         var list = new ImportedList { Format = Format };
+        foreach (var (k, v) in PositionNames) list.PositionNames[k] = v;
         list.Transponders.AddRange(Transponders.Where(t => t.Position == position));
         list.Services.AddRange(Services.Where(s => s.Transponder.Position == position));
         return list;

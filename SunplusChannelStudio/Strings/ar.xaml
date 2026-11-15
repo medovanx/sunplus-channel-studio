@@ -71,7 +71,7 @@
     <sys:String x:Key="Col.Transponders">الباقات</sys:String>
 
     <!-- Column explanations, shown when hovering a header -->
-    <sys:String x:Key="ColTip.Number">ترتيب القناة في قائمة الجهاز.</sys:String>
+    <sys:String x:Key="ColTip.Number">ترتيب القناة في قائمة الجهاز. اكتب رقمًا لنقل القناة إليه.</sys:String>
     <sys:String x:Key="ColTip.Name">الاسم الذي يظهر على الجهاز. اضغط F2 لإعادة التسمية.</sys:String>
     <sys:String x:Key="ColTip.Quality">جودة الصورة حسب ترميز الفيديو: SD هو MPEG-2، و HD هو H.264، و 4K هو HEVC. فارغة للراديو.</sys:String>
     <sys:String x:Key="ColTip.Favorite">مجموعة المفضلة التي تنتمي إليها القناة.</sys:String>
@@ -154,9 +154,9 @@
     <sys:String x:Key="Val.SymbolRate">معدل الترميز بوحدة kS/s (من 1000 إلى 45000).</sys:String>
     <!-- Import -->
     <sys:String x:Key="Btn.Import">استيراد</sys:String>
-    <sys:String x:Key="Tip.Import">تحديث من ملف قائمة قنوات (Enigma2 lamedb أو KingOfSat أو جدول مسح)</sys:String>
+    <sys:String x:Key="Tip.Import">دمج قاعدة بيانات قنوات أخرى أو التحديث من قائمة قنوات (Enigma2 lamedb أو KingOfSat أو جدول مسح)</sys:String>
     <sys:String x:Key="Imp.Title">استيراد قائمة قنوات</sys:String>
-    <sys:String x:Key="Imp.Filter">قوائم القنوات (lamedb, *.ini, *.conf)|lamedb;lamedb5;*.ini;*.conf;*.txt|كل الملفات (*.*)|*.*</sys:String>
+    <sys:String x:Key="Imp.Filter">قواعد بيانات وقوائم القنوات (*.bin, lamedb, *.ini, *.conf)|*.bin;lamedb;lamedb5;*.ini;*.conf;*.txt|كل الملفات (*.*)|*.*</sys:String>
     <sys:String x:Key="Imp.Source">{1} باقة و{2} قناة من ملف {0}</sys:String>
     <sys:String x:Key="Imp.Satellite">القمر المراد تحديثه</sys:String>
     <sys:String x:Key="Imp.Position">الموقع في الملف</sys:String>
@@ -212,4 +212,37 @@
     <sys:String x:Key="Reason.Placeholder">تجريبية أو بدون اسم</sys:String>
     <sys:String x:Key="Reason.NoStreams">بدون صورة أو صوت</sys:String>
     <sys:String x:Key="Reason.Duplicate">مكررة</sys:String>
+    <!-- Watch -->
+    <sys:String x:Key="Btn.Watch">مشاهدة</sys:String>
+    <sys:String x:Key="Menu.Watch">مشاهدة</sys:String>
+    <sys:String x:Key="Tip.Watch">مشاهدة القناة المحددة من بث عام على الإنترنت (Ctrl+Enter)</sys:String>
+    <sys:String x:Key="Watch.Title">مشاهدة</sys:String>
+    <sys:String x:Key="Watch.Loading">جارٍ تحميل قائمة البث...</sys:String>
+    <sys:String x:Key="Watch.Failed">تعذر تنزيل قائمة البث: {0}</sys:String>
+    <sys:String x:Key="Watch.NoStream">لم يُعثر على بث عام على الإنترنت لقناة {0}. كثير من القنوات تبث عبر القمر الصناعي فقط.</sys:String>
+    <sys:String x:Key="Play.Source">المصدر</sys:String>
+    <sys:String x:Key="Play.SourceTip">مصادر بث عامة أخرى لهذه القناة</sys:String>
+    <sys:String x:Key="Play.Connecting">جارٍ الاتصال...</sys:String>
+    <sys:String x:Key="Play.Buffering">جارٍ التحميل {0}%</sys:String>
+    <sys:String x:Key="Play.Playing">يعمل الآن</sys:String>
+    <sys:String x:Key="Play.Unavailable">لا يعمل أي مصدر حاليًا. قد يكون البث متوقفًا أو محجوبًا في بلدك.</sys:String>
+    <sys:String x:Key="Play.GeoBlocked">قد يكون محجوبًا في بلدك</sys:String>
+    <sys:String x:Key="Play.NotAlwaysOn">لا يعمل طوال الوقت</sys:String>
+    <sys:String x:Key="Play.Mute">كتم الصوت</sys:String>
+    <sys:String x:Key="Play.Unmute">تشغيل الصوت</sys:String>
+    <sys:String x:Key="Play.Notice">بث عام مُدرج في iptv-org. هذا البرنامج لا يستضيف ولا يسجل أي شيء، وقد يتوقف البث أو يُحجب في بلدك.</sys:String>
+    <!-- Undo -->
+    <sys:String x:Key="Btn.Undo">تراجع</sys:String>
+    <sys:String x:Key="Btn.Redo">إعادة</sys:String>
+    <sys:String x:Key="Btn.Revert">استعادة</sys:String>
+    <sys:String x:Key="Tip.Undo">التراجع عن آخر تغيير (Ctrl+Z)</sys:String>
+    <sys:String x:Key="Tip.Redo">إعادة (Ctrl+Y)</sys:String>
+    <sys:String x:Key="Tip.Revert">إلغاء كل التغييرات منذ فتح الملف أو آخر حفظ</sys:String>
+    <sys:String x:Key="Status.Undone">تم التراجع.</sys:String>
+    <sys:String x:Key="Status.Redone">تمت الإعادة.</sys:String>
+    <sys:String x:Key="Status.Reverted">تمت العودة إلى آخر نسخة محفوظة. اضغط Ctrl+Z لاسترجاع تغييراتك.</sys:String>
+    <sys:String x:Key="Dlg.RevertTitle">استعادة الملف</sys:String>
+    <sys:String x:Key="Dlg.RevertAsk">هل تريد إلغاء كل التغييرات منذ فتح الملف أو آخر حفظ؟</sys:String>
+    <sys:String x:Key="Val.Number">أدخل رقم ترتيب من 1 فأكثر.</sys:String>
+    <sys:String x:Key="Imp.SourceSatellite">القمر في الملف</sys:String>
 </ResourceDictionary>

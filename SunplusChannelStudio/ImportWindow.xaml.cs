@@ -37,8 +37,9 @@ public partial class ImportWindow : Window
         SatelliteBox.SelectedIndex = db.Satellites.Count > 0 ? 0 : -1;
 
         var positions = list.Positions;
-        foreach (var p in positions) PositionBox.Items.Add(new ComboBoxItem { Content = ImportedList.PositionLabel(p), Tag = p });
+        foreach (var p in positions) PositionBox.Items.Add(new ComboBoxItem { Content = list.Label(p), Tag = p });
         PositionBox.Visibility = PositionLabel.Visibility = positions.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+        if (list.PositionNames.Count > 0) PositionLabel.Text = Loc.Get("Imp.SourceSatellite");
         if (positions.Count > 0) PositionBox.SelectedIndex = PreferredPosition(positions);
 
         BuildColumns();
@@ -48,6 +49,13 @@ public partial class ImportWindow : Window
     /// <summary>Starts on the file position matching the first satellite's angle, when there is one.</summary>
     int PreferredPosition(IReadOnlyList<int> positions)
     {
+        if (_list.PositionNames.Count > 0 && _db.Satellites.Count > 0)
+        {
+            // Merging databases: start on the source satellite with the same name or position as ours.
+            var ours = _db.Satellites[0];
+            int byName = positions.ToList().FindIndex(p => _list.PositionNames.GetValueOrDefault(p) == ours.Name);
+            return Math.Max(byName, 0);
+        }
         int angle = _db.Satellites.Count > 0 ? (int)_db.Satellites[0].Position : 0;
         int i = positions.ToList().FindIndex(p => Math.Abs(p) == angle);
         return Math.Max(i, 0);

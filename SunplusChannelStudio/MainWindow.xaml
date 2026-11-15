@@ -11,16 +11,24 @@
         <KeyBinding Key="S" Modifiers="Control" Command="ApplicationCommands.Save" />
         <KeyBinding Key="S" Modifiers="Control+Shift" Command="ApplicationCommands.SaveAs" />
         <KeyBinding Key="F" Modifiers="Control" Command="ApplicationCommands.Find" />
+        <KeyBinding Key="Z" Modifiers="Control" Command="ApplicationCommands.Undo" />
+        <KeyBinding Key="Y" Modifiers="Control" Command="ApplicationCommands.Redo" />
+        <KeyBinding Key="Z" Modifiers="Control+Shift" Command="ApplicationCommands.Redo" />
     </Window.InputBindings>
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Open" Executed="Open_Executed" />
         <CommandBinding Command="ApplicationCommands.Save" Executed="Save_Executed" CanExecute="HasFile_CanExecute" />
         <CommandBinding Command="ApplicationCommands.SaveAs" Executed="SaveAs_Executed" CanExecute="HasFile_CanExecute" />
         <CommandBinding Command="ApplicationCommands.Find" Executed="Find_Executed" />
+        <CommandBinding Command="ApplicationCommands.Undo" Executed="Undo_Executed" CanExecute="Undo_CanExecute" />
+        <CommandBinding Command="ApplicationCommands.Redo" Executed="Redo_Executed" CanExecute="Redo_CanExecute" />
+        <CommandBinding Command="local:AppCommands.Revert" Executed="Revert_Executed" CanExecute="Revert_CanExecute" />
     </Window.CommandBindings>
 
     <Window.Resources>
         <ContextMenu x:Key="ChannelMenu" Opened="ChannelMenu_Opened">
+            <MenuItem Header="{DynamicResource Menu.Watch}" InputGestureText="Ctrl+Enter" Click="Watch_Click" />
+            <Separator />
             <MenuItem Header="{DynamicResource Menu.Rename}" InputGestureText="F2" Click="Rename_Click" />
             <MenuItem Header="{DynamicResource Menu.FavoriteGroup}" Tag="Favorites" />
             <Separator />
@@ -65,15 +73,37 @@
                 BorderBrush="{DynamicResource DividerStrokeColorDefaultBrush}">
             <DockPanel LastChildFill="True">
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                    <Button Command="ApplicationCommands.Open" Padding="14,6" ToolTip="{DynamicResource Tip.Open}" Content="{DynamicResource Btn.Open}" />
+                    <Button Command="ApplicationCommands.Open" Padding="14,6" ToolTip="{DynamicResource Tip.Open}">
+                <local:IconLabel Glyph="&#xE8E5;" Text="{DynamicResource Btn.Open}" />
+            </Button>
                     <Button Command="ApplicationCommands.Save" Padding="14,6" Margin="6,0,0,0" ToolTip="{DynamicResource Tip.Save}"
-                            Style="{DynamicResource AccentButtonStyle}" Content="{DynamicResource Btn.Save}" />
+                            Style="{DynamicResource AccentButtonStyle}">
+                <local:IconLabel Glyph="&#xE74E;" Text="{DynamicResource Btn.Save}" />
+            </Button>
                     <Button Command="ApplicationCommands.SaveAs" Padding="14,6" Margin="6,0,0,0"
-                            ToolTip="{DynamicResource Tip.SaveAs}" Content="{DynamicResource Btn.SaveAs}" />
+                            ToolTip="{DynamicResource Tip.SaveAs}">
+                <local:IconLabel Glyph="&#xE792;" Text="{DynamicResource Btn.SaveAs}" />
+            </Button>
+                    <Button Command="ApplicationCommands.Undo" Padding="14,6" Margin="6,0,0,0"
+                            ToolTip="{DynamicResource Tip.Undo}">
+                <local:IconLabel Glyph="&#xE7A7;" Text="{DynamicResource Btn.Undo}" />
+            </Button>
+                    <Button Command="ApplicationCommands.Redo" Padding="14,6" Margin="6,0,0,0"
+                            ToolTip="{DynamicResource Tip.Redo}">
+                <local:IconLabel Glyph="&#xE7A6;" Text="{DynamicResource Btn.Redo}" />
+            </Button>
+                    <Button Command="local:AppCommands.Revert" Padding="14,6" Margin="6,0,0,0"
+                            ToolTip="{DynamicResource Tip.Revert}">
+                <local:IconLabel Glyph="&#xE777;" Text="{DynamicResource Btn.Revert}" />
+            </Button>
                     <Button x:Name="ImportButton" Padding="14,6" Margin="6,0,0,0" IsEnabled="False" Click="Import_Click"
-                            ToolTip="{DynamicResource Tip.Import}" Content="{DynamicResource Btn.Import}" />
+                            ToolTip="{DynamicResource Tip.Import}">
+                <local:IconLabel Glyph="&#xE8B5;" Text="{DynamicResource Btn.Import}" />
+            </Button>
                     <Button x:Name="CleanupButton" Padding="14,6" Margin="6,0,0,0" IsEnabled="False" Click="Cleanup_Click"
-                            ToolTip="{DynamicResource Tip.Cleanup}" Content="{DynamicResource Btn.Cleanup}" />
+                            ToolTip="{DynamicResource Tip.Cleanup}">
+                <local:IconLabel Glyph="&#xEA99;" Text="{DynamicResource Btn.Cleanup}" />
+            </Button>
                     <TextBlock Text="{DynamicResource Lbl.Format}" VerticalAlignment="Center" Margin="18,0,8,0" Style="{StaticResource Dim}" />
                     <ComboBox x:Name="FormatBox" Width="170" IsEnabled="False" SelectionChanged="FormatBox_SelectionChanged"
                               ToolTip="{DynamicResource Tip.Format}" />
@@ -93,7 +123,9 @@
                 <TextBlock Margin="0,8,0,18" TextWrapping="Wrap" TextAlignment="Center" Style="{StaticResource Dim}"
                            Text="{DynamicResource Empty.Body}" />
                 <Button Command="ApplicationCommands.Open" HorizontalAlignment="Center" Padding="22,8"
-                        Style="{DynamicResource AccentButtonStyle}" Content="{DynamicResource Empty.Open}" />
+                        Style="{DynamicResource AccentButtonStyle}">
+                <local:IconLabel Glyph="&#xE8E5;" Text="{DynamicResource Empty.Open}" />
+            </Button>
             </StackPanel>
         </Grid>
 
@@ -166,12 +198,26 @@
                     </TextBlock.Visibility>
                 </TextBlock>
             </Grid>
-            <Button x:Name="UpButton" Margin="10,0,0,0" Padding="10,5" Click="MoveUp_Click" ToolTip="{DynamicResource Tip.Up}" Content="{DynamicResource Btn.Up}" />
-            <Button x:Name="DownButton" Margin="4,0,0,0" Padding="10,5" Click="MoveDown_Click" ToolTip="{DynamicResource Tip.Down}" Content="{DynamicResource Btn.Down}" />
-            <Button x:Name="MoveToButton" Margin="4,0,0,0" Padding="10,5" Click="MoveTo_Click" ToolTip="{DynamicResource Tip.MoveTo}" Content="{DynamicResource Btn.MoveTo}" />
+            <Button x:Name="WatchButton" Margin="10,0,0,0" Padding="10,5" Click="Watch_Click"
+                    ToolTip="{DynamicResource Tip.Watch}">
+                <local:IconLabel Glyph="&#xE768;" Text="{DynamicResource Btn.Watch}" />
+            </Button>
+            <Button x:Name="UpButton" Margin="10,0,0,0" Padding="10,5" Click="MoveUp_Click" ToolTip="{DynamicResource Tip.Up}">
+                <local:IconLabel Glyph="&#xE74A;" Text="{DynamicResource Btn.Up}" />
+            </Button>
+            <Button x:Name="DownButton" Margin="4,0,0,0" Padding="10,5" Click="MoveDown_Click" ToolTip="{DynamicResource Tip.Down}">
+                <local:IconLabel Glyph="&#xE74B;" Text="{DynamicResource Btn.Down}" />
+            </Button>
+            <Button x:Name="MoveToButton" Margin="4,0,0,0" Padding="10,5" Click="MoveTo_Click" ToolTip="{DynamicResource Tip.MoveTo}">
+                <local:IconLabel Glyph="&#xE8AB;" Text="{DynamicResource Btn.MoveTo}" />
+            </Button>
             <Button x:Name="FavoriteButton" Margin="4,0,0,0" Padding="10,5" Click="FavoriteButton_Click"
-                    ToolTip="{DynamicResource Tip.Favorite}" Content="{DynamicResource Btn.Favorite}" />
-            <Button x:Name="DeleteButton" Margin="4,0,0,0" Padding="10,5" Click="Delete_Click" ToolTip="{DynamicResource Tip.Delete}" Content="{DynamicResource Btn.Delete}" />
+                    ToolTip="{DynamicResource Tip.Favorite}">
+                <local:IconLabel Glyph="&#xE734;" Text="{DynamicResource Btn.Favorite}" />
+            </Button>
+            <Button x:Name="DeleteButton" Margin="4,0,0,0" Padding="10,5" Click="Delete_Click" ToolTip="{DynamicResource Tip.Delete}">
+                <local:IconLabel Glyph="&#xE74D;" Text="{DynamicResource Btn.Delete}" />
+            </Button>
         </StackPanel>
         </Grid>
 

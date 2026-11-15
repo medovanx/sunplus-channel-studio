@@ -60,9 +60,12 @@ public static class ImportPlanner
         }
 
         var channels = db.TvChannels.Concat(db.RadioChannels).ToList();
+        var seen = new List<(ImportedTransponder Tp, ushort Sid)>(); // the source can list a service twice too
         foreach (var s in list.Services)
         {
             if (string.IsNullOrWhiteSpace(s.Name)) continue;
+            if (seen.Any(x => x.Sid == s.ServiceId && Same(x.Tp, s.Transponder))) continue;
+            seen.Add((s.Transponder, s.ServiceId));
             if (s.Kind == ChannelKind.Tv && s.VideoPid == 0) continue; // data services, not watchable
             int idx = FindTransponder(db, satelliteIndex, s.Transponder);
             bool onNewTp = idx < 0 && newTps.Any(t => Same(t, s.Transponder));
@@ -151,11 +154,22 @@ public static class ImportPlanner
                     int idx = FindTransponder(db, satelliteIndex, s.Transponder);
                     if (idx < 0) break; // its transponder was not imported
                     var list = s.Kind == ChannelKind.Radio ? db.RadioChannels : db.TvChannels;
-                    var channel = Channel.Create(s.Kind, db.Type.ChannelSize());
-                    if (!FitName(channel, s.Name)) break;
-                    channel.SetService((ushort)idx, s.ServiceId, s.TransportStreamId, s.NetworkId);
-                    SetStreams(channel, s);
-                    channel.Scrambled = s.Scrambled;
+                    Channel channel;
+                    if (s.SourceRecord is { } raw)
+                    {
+                        // Merging another database: keep its whole record, only the transponder link changes.
+                        channel = new Channel(raw.ToArray());
+                        channel.Resize(db.Type.ChannelSize());
+                        channel.SetService((ushort)idx, s.ServiceId, s.TransportStreamId, s.NetworkId);
+                    }
+                    else
+                    {
+                        channel = Channel.Create(s.Kind, db.Type.ChannelSize());
+                        if (!FitName(channel, s.Name)) break;
+                        channel.SetService((ushort)idx, s.ServiceId, s.TransportStreamId, s.NetworkId);
+                        SetStreams(channel, s);
+                        channel.Scrambled = s.Scrambled;
+                    }
                     list.Add(channel);
                     applied++;
                     break;

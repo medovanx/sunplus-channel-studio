@@ -69,7 +69,7 @@
     <sys:String x:Key="Col.Transponders">Transponders</sys:String>
 
     <!-- Column explanations, shown when hovering a header -->
-    <sys:String x:Key="ColTip.Number">Position of the channel in the receiver list.</sys:String>
+    <sys:String x:Key="ColTip.Number">Position of the channel in the receiver list. Type a number to move the channel there.</sys:String>
     <sys:String x:Key="ColTip.Name">Name shown on the receiver. Press F2 to rename.</sys:String>
     <sys:String x:Key="ColTip.Quality">Picture quality, from the video codec: SD is MPEG-2, HD is H.264 and 4K is HEVC. Empty for radio.</sys:String>
     <sys:String x:Key="ColTip.Favorite">The favourite group the channel belongs to.</sys:String>
@@ -152,9 +152,9 @@
     <sys:String x:Key="Val.SymbolRate">Symbol rate is in kS/s (1000 to 45000).</sys:String>
     <!-- Import -->
     <sys:String x:Key="Btn.Import">Import</sys:String>
-    <sys:String x:Key="Tip.Import">Update from a channel list file (Enigma2 lamedb, KingOfSat, scan table)</sys:String>
+    <sys:String x:Key="Tip.Import">Merge another channel database or update from a channel list (Enigma2 lamedb, KingOfSat, scan table)</sys:String>
     <sys:String x:Key="Imp.Title">Import channel list</sys:String>
-    <sys:String x:Key="Imp.Filter">Channel lists (lamedb, *.ini, *.conf)|lamedb;lamedb5;*.ini;*.conf;*.txt|All files (*.*)|*.*</sys:String>
+    <sys:String x:Key="Imp.Filter">Channel lists and databases (*.bin, lamedb, *.ini, *.conf)|*.bin;lamedb;lamedb5;*.ini;*.conf;*.txt|All files (*.*)|*.*</sys:String>
     <sys:String x:Key="Imp.Source">{0}: {1} transponders, {2} channels</sys:String>
     <sys:String x:Key="Imp.Satellite">Update satellite</sys:String>
     <sys:String x:Key="Imp.Position">Position in file</sys:String>
@@ -210,4 +210,37 @@
     <sys:String x:Key="Reason.Placeholder">Test or placeholder</sys:String>
     <sys:String x:Key="Reason.NoStreams">No picture or sound</sys:String>
     <sys:String x:Key="Reason.Duplicate">Duplicate</sys:String>
+    <!-- Watch -->
+    <sys:String x:Key="Btn.Watch">Watch</sys:String>
+    <sys:String x:Key="Menu.Watch">Watch</sys:String>
+    <sys:String x:Key="Tip.Watch">Watch the selected channel from a public internet stream (Ctrl+Enter)</sys:String>
+    <sys:String x:Key="Watch.Title">Watch</sys:String>
+    <sys:String x:Key="Watch.Loading">Loading the stream list...</sys:String>
+    <sys:String x:Key="Watch.Failed">The stream list could not be downloaded: {0}</sys:String>
+    <sys:String x:Key="Watch.NoStream">No public internet stream was found for {0}. Many channels only broadcast by satellite.</sys:String>
+    <sys:String x:Key="Play.Source">Source</sys:String>
+    <sys:String x:Key="Play.SourceTip">Other public streams found for this channel</sys:String>
+    <sys:String x:Key="Play.Connecting">Connecting...</sys:String>
+    <sys:String x:Key="Play.Buffering">Loading {0}%</sys:String>
+    <sys:String x:Key="Play.Playing">Playing</sys:String>
+    <sys:String x:Key="Play.Unavailable">No source is playing right now. The stream may be offline or blocked in your country.</sys:String>
+    <sys:String x:Key="Play.GeoBlocked">may be blocked in your country</sys:String>
+    <sys:String x:Key="Play.NotAlwaysOn">not always on</sys:String>
+    <sys:String x:Key="Play.Mute">Mute</sys:String>
+    <sys:String x:Key="Play.Unmute">Unmute</sys:String>
+    <sys:String x:Key="Play.Notice">Public stream listed by iptv-org. This app does not host or record anything, and streams can stop working or be blocked in your country.</sys:String>
+    <!-- Undo -->
+    <sys:String x:Key="Btn.Undo">Undo</sys:String>
+    <sys:String x:Key="Btn.Redo">Redo</sys:String>
+    <sys:String x:Key="Btn.Revert">Revert</sys:String>
+    <sys:String x:Key="Tip.Undo">Undo the last change (Ctrl+Z)</sys:String>
+    <sys:String x:Key="Tip.Redo">Redo (Ctrl+Y)</sys:String>
+    <sys:String x:Key="Tip.Revert">Throw away all changes since the file was opened or last saved</sys:String>
+    <sys:String x:Key="Status.Undone">Undone.</sys:String>
+    <sys:String x:Key="Status.Redone">Redone.</sys:String>
+    <sys:String x:Key="Status.Reverted">Back to the last saved version. Ctrl+Z brings your changes back.</sys:String>
+    <sys:String x:Key="Dlg.RevertTitle">Revert changes</sys:String>
+    <sys:String x:Key="Dlg.RevertAsk">Throw away all changes since the file was opened or last saved?</sys:String>
+    <sys:String x:Key="Val.Number">Enter a position number, 1 or more.</sys:String>
+    <sys:String x:Key="Imp.SourceSatellite">Satellite in file</sys:String>
 </ResourceDictionary>

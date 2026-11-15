@@ -1,6 +1,7 @@
 <Window x:Class="SunplusChannelStudio.CleanupWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:SunplusChannelStudio"
         Title="{DynamicResource Cln.Title}" Icon="Assets/icon.ico"
         Width="960" Height="640" MinWidth="720" MinHeight="420"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
@@ -36,13 +37,21 @@
 
         <DockPanel Grid.Row="3" Margin="0,14,0,0">
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                <Button x:Name="RemoveButton" Content="{DynamicResource Cln.Remove}" Padding="18,6" MinWidth="96"
-                        IsDefault="True" Style="{DynamicResource AccentButtonStyle}" Click="Remove_Click" />
-                <Button Content="{DynamicResource Dlg.Cancel}" Padding="18,6" MinWidth="96" Margin="8,0,0,0" IsCancel="True" />
+                <Button x:Name="RemoveButton" Padding="18,6" MinWidth="96"
+                        IsDefault="True" Style="{DynamicResource AccentButtonStyle}" Click="Remove_Click">
+                    <local:IconLabel Glyph="&#xE74D;" Text="{DynamicResource Cln.Remove}" />
+                </Button>
+                <Button Padding="18,6" MinWidth="96" Margin="8,0,0,0" IsCancel="True">
+                    <local:IconLabel Glyph="&#xE711;" Text="{DynamicResource Dlg.Cancel}" />
+                </Button>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
-                <Button Content="{DynamicResource Imp.SelectAll}" Padding="12,5" Click="SelectAll_Click" />
-                <Button Content="{DynamicResource Imp.SelectNone}" Padding="12,5" Margin="6,0,0,0" Click="SelectNone_Click" />
+                <Button Padding="12,5" Click="SelectAll_Click">
+                    <local:IconLabel Glyph="&#xE8B3;" Text="{DynamicResource Imp.SelectAll}" />
+                </Button>
+                <Button Padding="12,5" Margin="6,0,0,0" Click="SelectNone_Click">
+                    <local:IconLabel Glyph="&#xE8E6;" Text="{DynamicResource Imp.SelectNone}" />
+                </Button>
                 <TextBlock x:Name="CountLabel" VerticalAlignment="Center" Margin="14,0,0,0"
                            Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
             </StackPanel>
