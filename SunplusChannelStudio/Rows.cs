@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using SunplusChannelStudio.Core;
+using SunplusChannelStudio.Core.Streams;
 
 namespace SunplusChannelStudio;
 
@@ -84,6 +85,15 @@ public sealed class ChannelRow(Channel channel, ChannelDatabase db) : Row
     }
 
     public string Access => Loc.Get(Channel.Scrambled ? "Access.Scrambled" : "Access.Free");
+
+    /// <summary>Shared by all rows: the user's category choices, the name rules and the stream catalogue.</summary>
+    public static Categorizer Categorizer { get; set; } = new(CategoryRules.Default);
+
+    public ChannelCategory CategoryValue => Categorizer.Classify(Channel);
+    public string Category => Loc.Get("Cat." + CategoryValue);
+
+    /// <summary>Play icon when the stream catalogue has a public stream for this channel; empty otherwise.</summary>
+    public string Live => Categorizer.Catalog is { } c && c.Find(Name).Count > 0 ? "\uE768" : "";
 
     /// <summary>
     /// Picture quality from the video codec the receiver stored: MPEG-2 is SD, H.264 is HD, HEVC is 4K.

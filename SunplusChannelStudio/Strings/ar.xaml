@@ -216,6 +216,7 @@
     <sys:String x:Key="Btn.Watch">مشاهدة</sys:String>
     <sys:String x:Key="Menu.Watch">مشاهدة</sys:String>
     <sys:String x:Key="Tip.Watch">مشاهدة القناة المحددة من بث عام على الإنترنت (Ctrl+Enter)</sys:String>
+    <sys:String x:Key="Tip.WatchNone">لا يوجد بث عام على الإنترنت لهذه القناة</sys:String>
     <sys:String x:Key="Watch.Title">مشاهدة</sys:String>
     <sys:String x:Key="Watch.Loading">جارٍ تحميل قائمة البث...</sys:String>
     <sys:String x:Key="Watch.Failed">تعذر تنزيل قائمة البث: {0}</sys:String>
@@ -263,8 +264,21 @@
     <sys:String x:Key="Cat.Sports">رياضة</sys:String>
     <sys:String x:Key="Cat.Kids">أطفال</sys:String>
     <sys:String x:Key="Cat.Movies">أفلام</sys:String>
-    <sys:String x:Key="Cat.Drama">دراما ومسلسلات</sys:String>
-    <sys:String x:Key="Cat.Music">موسيقى وراديو</sys:String>
-    <sys:String x:Key="Cat.Documentary">وثائقية وتعليمية</sys:String>
+    <sys:String x:Key="Cat.Drama">دراما</sys:String>
+    <sys:String x:Key="Cat.Music">موسيقى</sys:String>
+    <sys:String x:Key="Cat.Documentary">وثائقية</sys:String>
     <sys:String x:Key="Cat.General">عامة</sys:String>
+    <!-- Categories, live -->
+    <sys:String x:Key="Col.Category">التصنيف</sys:String>
+    <sys:String x:Key="ColTip.Category">تصنيف القناة، يُخمَّن من اسمها أو تحدده أنت (زر الفأرة الأيمن، التصنيف). يُحفظ اختيارك لهذه القناة في كل القوائم.</sys:String>
+    <sys:String x:Key="Col.Live">مباشر</sys:String>
+    <sys:String x:Key="ColTip.Live">علامة التشغيل تعني وجود بث عام على الإنترنت، فيمكن مشاهدة القناة.</sys:String>
+    <sys:String x:Key="Menu.Category">التصنيف</sys:String>
+    <sys:String x:Key="Cat.Automatic">تلقائي</sys:String>
+    <sys:String x:Key="Cat.Set">تم ضبط التصنيف إلى {0}، ويُحفظ لهذه القنوات في كل القوائم.</sys:String>
+    <sys:String x:Key="Cat.SetAuto">عاد التصنيف إلى تلقائي.</sys:String>
+    <sys:String x:Key="Cat.RulesError">في ملف قواعد التصنيف خطأ، لذلك تُستخدم القواعد المدمجة: {0}</sys:String>
+    <sys:String x:Key="Sort.DragTip">اسحب التصنيف لنقله</sys:String>
+    <sys:String x:Key="Sort.EditRules">تعديل القواعد</sys:String>
+    <sys:String x:Key="Sort.EditRulesTip">فتح ملف قواعد التصنيف الخاص بك لإضافة كلمات لقنواتك؛ تُطبَّق التغييرات عند الترتيب التالي</sys:String>
 </ResourceDictionary>

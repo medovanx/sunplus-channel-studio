@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Default category rules; users can extend their own copy. -->
+    <EmbeddedResource Include="category-rules.json" LogicalName="SunplusChannelStudio.Core.category-rules.json" />
+  </ItemGroup>
+
 </Project>

@@ -27,10 +27,11 @@
 
     <Window.Resources>
         <ContextMenu x:Key="ChannelMenu" Opened="ChannelMenu_Opened">
-            <MenuItem Header="{DynamicResource Menu.Watch}" InputGestureText="Ctrl+Enter" Click="Watch_Click" />
+            <MenuItem Header="{DynamicResource Menu.Watch}" InputGestureText="Ctrl+Enter" Click="Watch_Click" Tag="Watch" />
             <Separator />
             <MenuItem Header="{DynamicResource Menu.Rename}" InputGestureText="F2" Click="Rename_Click" />
             <MenuItem Header="{DynamicResource Menu.FavoriteGroup}" Tag="Favorites" />
+            <MenuItem Header="{DynamicResource Menu.Category}" Tag="Categories" />
             <Separator />
             <MenuItem Header="{DynamicResource Menu.MoveUp}" InputGestureText="Ctrl+Up" Click="MoveUp_Click" />
             <MenuItem Header="{DynamicResource Menu.MoveDown}" InputGestureText="Ctrl+Down" Click="MoveDown_Click" />
@@ -199,7 +200,7 @@
                 </TextBlock>
             </Grid>
             <Button x:Name="WatchButton" Margin="10,0,0,0" Padding="10,5" Click="Watch_Click"
-                    ToolTip="{DynamicResource Tip.Watch}">
+                    ToolTip="{DynamicResource Tip.Watch}" ToolTipService.ShowOnDisabled="True">
                 <local:IconLabel Glyph="&#xE768;" Text="{DynamicResource Btn.Watch}" />
             </Button>
             <Button x:Name="SortButton" Margin="4,0,0,0" Padding="10,5" Click="Sort_Click" ToolTip="{DynamicResource Tip.Sort}">

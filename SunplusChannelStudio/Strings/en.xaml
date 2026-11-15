@@ -214,6 +214,7 @@
     <sys:String x:Key="Btn.Watch">Watch</sys:String>
     <sys:String x:Key="Menu.Watch">Watch</sys:String>
     <sys:String x:Key="Tip.Watch">Watch the selected channel from a public internet stream (Ctrl+Enter)</sys:String>
+    <sys:String x:Key="Tip.WatchNone">No public internet stream was found for this channel</sys:String>
     <sys:String x:Key="Watch.Title">Watch</sys:String>
     <sys:String x:Key="Watch.Loading">Loading the stream list...</sys:String>
     <sys:String x:Key="Watch.Failed">The stream list could not be downloaded: {0}</sys:String>
@@ -261,8 +262,21 @@
     <sys:String x:Key="Cat.Sports">Sports</sys:String>
     <sys:String x:Key="Cat.Kids">Kids</sys:String>
     <sys:String x:Key="Cat.Movies">Movies</sys:String>
-    <sys:String x:Key="Cat.Drama">Drama and series</sys:String>
-    <sys:String x:Key="Cat.Music">Music and radio</sys:String>
-    <sys:String x:Key="Cat.Documentary">Documentary and education</sys:String>
+    <sys:String x:Key="Cat.Drama">Drama</sys:String>
+    <sys:String x:Key="Cat.Music">Music</sys:String>
+    <sys:String x:Key="Cat.Documentary">Documentary</sys:String>
     <sys:String x:Key="Cat.General">General</sys:String>
+    <!-- Categories, live -->
+    <sys:String x:Key="Col.Category">Category</sys:String>
+    <sys:String x:Key="ColTip.Category">The channel's category, guessed from its name or set by you (right-click, Category). Your choice is remembered for this channel in every list.</sys:String>
+    <sys:String x:Key="Col.Live">Live</sys:String>
+    <sys:String x:Key="ColTip.Live">A play icon means a public internet stream was found, so Watch can show this channel.</sys:String>
+    <sys:String x:Key="Menu.Category">Category</sys:String>
+    <sys:String x:Key="Cat.Automatic">Automatic</sys:String>
+    <sys:String x:Key="Cat.Set">Category set to {0}. It is remembered for these channels in every list.</sys:String>
+    <sys:String x:Key="Cat.SetAuto">Category back to automatic.</sys:String>
+    <sys:String x:Key="Cat.RulesError">Your category rules file has a problem, so the built-in rules are used: {0}</sys:String>
+    <sys:String x:Key="Sort.DragTip">Drag a category to move it</sys:String>
+    <sys:String x:Key="Sort.EditRules">Edit rules</sys:String>
+    <sys:String x:Key="Sort.EditRulesTip">Open your own category rules file to add words for your channels; changes apply the next time you sort</sys:String>
 </ResourceDictionary>

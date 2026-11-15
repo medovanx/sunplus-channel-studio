@@ -63,7 +63,7 @@ public partial class MainWindow : Window
             grid.Drop += ChannelGrid_Drop;
             grid.DragOver += ChannelGrid_DragOver;
             grid.DragLeave += ChannelGrid_DragLeave;
-            grid.SelectionChanged += (_, _) => UpdateStatus();
+            grid.SelectionChanged += (_, _) => { UpdateStatus(); UpdateWatchAvailability(); };
         }
         TvGrid.ItemsSource = _tv;
         RadioGrid.ItemsSource = _radio;
@@ -133,6 +133,14 @@ public partial class MainWindow : Window
         var name = Text("Col.Name", nameof(ChannelRow.Name), 0, readOnly: false);
         name.MinWidth = 200;
         grid.Columns.Add(name);
+        var live = Text("Col.Live", nameof(ChannelRow.Live), 44);
+        var liveStyle = CellStyle(right: false);
+        liveStyle.Setters.Add(new Setter(TextBlock.FontFamilyProperty, new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets")));
+        liveStyle.Setters.Add(new Setter(TextBlock.ForegroundProperty, new DynamicResourceExtension("AccentTextFillColorPrimaryBrush")));
+        liveStyle.Setters.Add(new Setter(TextBlock.TextAlignmentProperty, TextAlignment.Center));
+        live.ElementStyle = liveStyle;
+        grid.Columns.Add(live);
+        grid.Columns.Add(Text("Col.Category", nameof(ChannelRow.Category), 110));
         grid.Columns.Add(Text("Col.Quality", nameof(ChannelRow.Quality), 70));
         grid.Columns.Add(Text("Col.Access", nameof(ChannelRow.Access), 92));
         grid.Columns.Add(Text("Col.Favorite", nameof(ChannelRow.Favorite), 92));
@@ -192,6 +200,8 @@ public partial class MainWindow : Window
         _loading = false;
         _dirty = false;
         ResetHistory();
+        RebuildCategorizer();
+        PreloadCatalog();
         Tabs.SelectedItem = TvTab;
         UpdateChrome();
     }
@@ -268,16 +278,18 @@ public partial class MainWindow : Window
     {
         if (_db is null || !CanReorder()) return;
         CommitEdits();
-        // Uses the stream catalogue's categories only if it was downloaded before; sorting never downloads.
-        var catalog = _catalog is { IsCompletedSuccessfully: true } loaded ? loaded.Result : CatalogCache.TryLoadCached(CatalogFolder);
+        // If the stream list is still loading, its copy on disk is used so the result never depends on timing.
+        RebuildCategorizer(LoadedOrCachedCatalog()); // also picks up edits to the rules file
         var rows = ActiveGrid == RadioGrid ? _radio : _tv;
-        var counts = rows.GroupBy(r => Categories.Classify(r.Name, catalog)).ToDictionary(g => g.Key, g => g.Count());
+        var counts = rows.GroupBy(r => r.CategoryValue).ToDictionary(g => g.Key, g => g.Count());
         var window = new SortWindow(counts, hasRadio: rows == _tv && _radio.Count > 0) { Owner = this };
-        if (window.ShowDialog() != true) return;
+        bool applied = window.ShowDialog() == true;
+        RebuildCategorizer(LoadedOrCachedCatalog()); // the rules may have been edited from the Sort window
+        if (!applied) return;
 
         void Apply(ObservableCollection<ChannelRow> list)
         {
-            var sorted = Categories.Sort(list, r => r.Name, window.Order, window.Alphabetical, catalog);
+            var sorted = Categories.Sort(list, r => r.Name, r => r.CategoryValue, window.Order, window.Alphabetical);
             for (int i = 0; i < sorted.Count; i++)
             {
                 int from = list.IndexOf(sorted[i]);
@@ -291,30 +303,153 @@ public partial class MainWindow : Window
         StatusLabel.Text = Loc.Get("Sort.Done");
     }
 
+    // ---------- Categories ----------
+
+    static string ChoicesPath => Path.Combine(Path.GetDirectoryName(App.ErrorLog)!, "category-choices.json");
+    public static string RulesPath => Path.Combine(Path.GetDirectoryName(App.ErrorLog)!, "category-rules.json");
+
+    Dictionary<string, ChannelCategory>? _choices;
+
+    /// <summary>Categories the user set by hand, keyed by the channel's network, stream and service ids.</summary>
+    Dictionary<string, ChannelCategory> Choices
+    {
+        get
+        {
+            if (_choices is not null) return _choices;
+            _choices = [];
+            try
+            {
+                if (File.Exists(ChoicesPath)
+                    && System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(ChoicesPath)) is { } saved)
+                    foreach (var (key, value) in saved)
+                        if (Enum.TryParse<ChannelCategory>(value, out var c)) _choices[key] = c;
+            }
+            catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException) { }
+            return _choices;
+        }
+    }
+
+    void SaveChoices()
+    {
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(ChoicesPath)!);
+            File.WriteAllText(ChoicesPath, System.Text.Json.JsonSerializer.Serialize(
+                Choices.ToDictionary(kv => kv.Key, kv => kv.Value.ToString()), new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+        }
+        catch (IOException) { }
+    }
+
+    /// <summary>The user's own rules file when there is one and it reads cleanly, else the shipped rules.</summary>
+    CategoryRules LoadRules()
+    {
+        if (!File.Exists(RulesPath)) return CategoryRules.Default;
+        try { return CategoryRules.Parse(File.ReadAllText(RulesPath)); }
+        catch (Exception ex) when (ex is CategoryRulesException or IOException)
+        {
+            StatusLabel.Text = Loc.Format("Cat.RulesError", ex.Message);
+            return CategoryRules.Default;
+        }
+    }
+
+    StreamCatalog? _cachedCatalog;
+
+    /// <summary>The loaded catalogue, else the copy on disk (read once), else null. Never downloads.</summary>
+    StreamCatalog? LoadedOrCachedCatalog() =>
+        _catalog is { IsCompletedSuccessfully: true } t ? t.Result : _cachedCatalog ??= CatalogCache.TryLoadCached(CatalogFolder);
+
+    void RebuildCategorizer(StreamCatalog? catalog = null)
+    {
+        catalog ??= _catalog is { IsCompletedSuccessfully: true } t ? t.Result : _cachedCatalog;
+        ChannelRow.Categorizer = new Categorizer(LoadRules(), Choices, catalog);
+        foreach (var r in _tv.Concat(_radio)) r.Refresh();
+        UpdateWatchAvailability();
+    }
+
+    /// <summary>
+    /// Watch is offered only for channels with a public stream. Until the stream list has loaded it stays
+    /// on, since a click loads the list and says so when there is nothing to watch.
+    /// </summary>
+    void UpdateWatchAvailability()
+    {
+        var catalog = ChannelRow.Categorizer.Catalog;
+        var row = Selected().FirstOrDefault();
+        bool live = row is not null && (catalog is null || catalog.Find(row.Name).Count > 0);
+        WatchButton.IsEnabled = live;
+        WatchButton.SetResourceReference(ToolTipProperty, live || row is null ? "Tip.Watch" : "Tip.WatchNone");
+    }
+
+    void AddCategoryItems(ItemCollection items)
+    {
+        var picked = Selected();
+        var auto = new MenuItem { Header = Loc.Get("Cat.Automatic"), IsCheckable = true,
+            IsChecked = picked.Count > 0 && picked.All(r => !ChannelRow.Categorizer.IsChosen(r.Channel)) };
+        auto.Click += (_, _) => SetCategory(null);
+        items.Add(auto);
+        items.Add(new Separator());
+        foreach (var c in Enum.GetValues<ChannelCategory>())
+        {
+            var item = new MenuItem { Header = Loc.Get("Cat." + c), IsCheckable = true,
+                IsChecked = picked.Count > 0 && picked.All(r => ChannelRow.Categorizer.IsChosen(r.Channel) && r.CategoryValue == c) };
+            item.Click += (_, _) => SetCategory(c);
+            items.Add(item);
+        }
+    }
+
+    /// <summary>Sets (or clears, for automatic) the category of the selected channels; remembered for every list.</summary>
+    void SetCategory(ChannelCategory? category)
+    {
+        foreach (var r in Selected())
+        {
+            var key = Categorizer.KeyOf(r.Channel);
+            if (category is { } c) Choices[key] = c; else Choices.Remove(key);
+        }
+        SaveChoices();
+        RebuildCategorizer();
+        StatusLabel.Text = category is { } set ? Loc.Format("Cat.Set", Loc.Get("Cat." + set)) : Loc.Get("Cat.SetAuto");
+    }
+
     // ---------- Watch ----------
 
     static string CatalogFolder => Path.Combine(Path.GetDirectoryName(App.ErrorLog)!, "iptv");
 
+    /// <summary>
+    /// The stream catalogue, from the daily cache or downloaded once. When it arrives the Live icons and
+    /// catalogue-based categories are filled in.
+    /// </summary>
+    Task<StreamCatalog> EnsureCatalog(IProgress<string>? progress = null)
+    {
+        if (_catalog is { IsFaulted: false, IsCanceled: false }) return _catalog;
+        // The client must live until every download finishes, so the load is awaited inside the using.
+        _catalog = Task.Run(async () =>
+        {
+            using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(3) };
+            http.DefaultRequestHeaders.UserAgent.ParseAdd("SunplusChannelStudio");
+            return await new CatalogCache(CatalogFolder, http).LoadAsync(progress);
+        });
+        _catalog.ContinueWith(t => RebuildCategorizer(t.Result), CancellationToken.None,
+            TaskContinuationOptions.OnlyOnRanToCompletion, TaskScheduler.FromCurrentSynchronizationContext());
+        return _catalog;
+    }
+
+    /// <summary>Starts the catalogue in the background after a file opens; a failure only leaves the Live column empty.</summary>
+    async void PreloadCatalog()
+    {
+        try { await EnsureCatalog(); }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or System.Text.Json.JsonException) { }
+    }
+
     async void Watch_Click(object sender, RoutedEventArgs e)
     {
-        if (Selected().FirstOrDefault() is not { } row) return;
+        if (Selected().FirstOrDefault() is not { } row || !WatchButton.IsEnabled) return;
         StatusLabel.Text = Loc.Get("Watch.Loading");
         StreamCatalog catalog;
         try
         {
-            // The client must live until every download finishes, so the load is awaited inside the using.
-            var progress = new Progress<string>(file => StatusLabel.Text = Loc.Format("Watch.Downloading", file));
-            _catalog ??= Task.Run(async () =>
-            {
-                using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(3) };
-                http.DefaultRequestHeaders.UserAgent.ParseAdd("SunplusChannelStudio");
-                return await new CatalogCache(CatalogFolder, http).LoadAsync(progress);
-            });
-            catalog = await _catalog;
+            catalog = await EnsureCatalog(new Progress<string>(file => StatusLabel.Text = Loc.Format("Watch.Downloading", file)));
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or IOException or System.Text.Json.JsonException)
         {
-            _catalog = null; // try again next time
             UpdateStatus();
             Say(Loc.Format("Watch.Failed", ex.Message), "Watch.Title", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
@@ -558,9 +693,13 @@ public partial class MainWindow : Window
     {
         var menu = (ContextMenu)sender;
         menu.FlowDirection = Loc.Flow;
+        menu.Items.OfType<MenuItem>().First(i => (string?)i.Tag == "Watch").IsEnabled = WatchButton.IsEnabled;
         var favorites = menu.Items.OfType<MenuItem>().First(i => (string?)i.Tag == "Favorites");
         favorites.Items.Clear();
         AddFavoriteItems(favorites.Items);
+        var categories = menu.Items.OfType<MenuItem>().First(i => (string?)i.Tag == "Categories");
+        categories.Items.Clear();
+        AddCategoryItems(categories.Items);
     }
 
     void AddFavoriteItems(ItemCollection items)
@@ -744,6 +883,7 @@ public partial class MainWindow : Window
     {
         if (e.Source != Tabs) return;
         ChannelBar.Visibility = ActiveGrid is null ? Visibility.Collapsed : Visibility.Visible;
+        UpdateWatchAvailability();
         if (Tabs.SelectedItem == TpTab) RefreshTransponderCounts();
         UpdateStatus();
     }

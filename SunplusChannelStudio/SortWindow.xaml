@@ -20,7 +20,7 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <ListBox x:Name="CategoryList" SelectionMode="Single" />
+            <ListBox x:Name="CategoryList" SelectionMode="Single" AllowDrop="True" ToolTip="{DynamicResource Sort.DragTip}" />
             <StackPanel Grid.Column="1" Margin="10,0,0,0">
                 <Button x:Name="UpButton" Click="Up_Click" ToolTip="{DynamicResource Tip.Up}" HorizontalAlignment="Stretch" Padding="12,6">
                     <local:IconLabel Glyph="&#xE74A;" Text="{DynamicResource Btn.Up}" />
@@ -30,6 +30,9 @@
                 </Button>
                 <Button Click="Reset_Click" HorizontalAlignment="Stretch" Padding="12,6" Margin="0,18,0,0" ToolTip="{DynamicResource Sort.ResetTip}">
                     <local:IconLabel Glyph="&#xE777;" Text="{DynamicResource Sort.Reset}" />
+                </Button>
+                <Button Click="EditRules_Click" HorizontalAlignment="Stretch" Padding="12,6" Margin="0,6,0,0" ToolTip="{DynamicResource Sort.EditRulesTip}">
+                    <local:IconLabel Glyph="&#xE70F;" Text="{DynamicResource Sort.EditRules}" />
                 </Button>
             </StackPanel>
         </Grid>

@@ -1,0 +1,75 @@
+{
+  "about": "Category rules for Sunplus Channel Studio. Rules are checked from top to bottom and the first match wins. A word matches a whole word in the channel name, and a number may follow it (Drama 2). End a word with * to match any ending (nick* matches Nickelodeon). Words with spaces match those words in a row. Add words for your own region freely. catalog maps the stream catalogue's categories to ours.",
+  "rules": [
+    {
+      "category": "Religious",
+      "words": [
+        "quran", "qoran", "koran", "kareem", "sunna", "sunnah", "sonna", "sonnah", "islam*", "iqra", "iqraa", "majd",
+        "azhar", "azhari", "rahma", "huda", "makkah", "mecca", "madina", "madinah", "hekma", "resala", "nas", "fath",
+        "mustafa", "zad", "dawah", "dawaah", "nada", "kawthar",
+        "قرآن", "قران", "سنه", "سنة", "اسلام", "إسلام", "مكه", "مكة", "المجد", "الرحمه", "الرحمة", "اقرأ", "إقرأ", "اقرا",
+        "ازهري", "أزهري", "الرساله", "الرسالة", "الناس", "الفتح", "صفا", "المصطفي", "المصطفى", "الحق", "الكوثر",
+        "دعوه", "دعوة", "الزاد", "الندي", "الندى"
+      ]
+    },
+    {
+      "category": "Kids",
+      "words": [
+        "kid", "kids", "cartoon", "toon", "toons", "spacetoon", "toyor", "baby", "junior", "majid", "nick*", "disney",
+        "jeem", "tofola", "cn arabia",
+        "براعم", "اطفال", "أطفال", "طفوله", "طفولة", "كرتون", "طيور", "سبيستون", "سبيس تون", "ماجد", "جيم"
+      ]
+    },
+    {
+      "category": "Sports",
+      "words": [
+        "sport", "sports", "bein", "ontime", "on time", "ahly", "zamalek", "koora", "kass", "yas", "heddaf", "ssc",
+        "رياضه", "رياضة", "الرياضيه", "الرياضية", "الاهلي", "الأهلي", "الزمالك", "كوره", "كورة"
+      ]
+    },
+    {
+      "category": "Documentary",
+      "words": [
+        "documentary", "discovery", "nat geo", "natgeo", "national geographic", "history", "h2", "wathaeqya", "animal",
+        "science", "educ*", "madras*",
+        "وثائقي", "الوثائقيه", "الوثائقية", "ناشيونال", "التعليميه", "التعليمية", "مدرستنا"
+      ]
+    },
+    {
+      "category": "News",
+      "words": [
+        "news", "akhbar", "jazeera", "arabiya", "hadath", "sky", "bbc", "cnn", "france 24", "france24", "rt", "asharq",
+        "alhurra", "hurra", "extra", "ghad",
+        "اخبار", "أخبار", "الاخباريه", "الإخبارية", "الجزيره", "الجزيرة", "العربيه", "العربية", "الحدث", "الغد", "الحره",
+        "الحرة", "اكسترا"
+      ]
+    },
+    {
+      "category": "Movies",
+      "words": [ "cinema", "movie", "movies", "film", "films", "aflam", "cima", "action", "bollywood", "سينما", "افلام", "أفلام", "سيما" ]
+    },
+    {
+      "category": "Drama",
+      "words": [ "drama", "series", "mosalsalat", "moslslat", "hekayat", "دراما", "مسلسلات", "حكايات" ]
+    },
+    {
+      "category": "Music",
+      "words": [
+        "music", "clip", "mazzika", "melody", "tarab", "songs", "aghani", "radio", "fm",
+        "موسيقي", "موسيقى", "اغاني", "أغاني", "كليب", "طرب", "مزيكا", "ميلودي", "راديو", "اذاعه", "إذاعة"
+      ]
+    }
+  ],
+  "catalog": {
+    "general": "General", "entertainment": "General", "family": "General", "lifestyle": "General", "culture": "General",
+    "comedy": "General", "cooking": "General", "auto": "General", "shop": "General",
+    "religious": "Religious",
+    "news": "News", "business": "News", "weather": "News",
+    "sports": "Sports", "outdoor": "Sports",
+    "kids": "Kids", "animation": "Kids",
+    "movies": "Movies", "classic": "Movies",
+    "series": "Drama",
+    "music": "Music",
+    "documentary": "Documentary", "science": "Documentary", "education": "Documentary", "travel": "Documentary"
+  }
+}
