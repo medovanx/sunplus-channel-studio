@@ -135,18 +135,21 @@
                 <TextBlock Text="{DynamicResource Empty.Title}" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center" />
                 <TextBlock Margin="0,8,0,18" TextWrapping="Wrap" TextAlignment="Center" Style="{StaticResource Dim}"
                            Text="{DynamicResource Empty.Body}" />
-                <Button Command="ApplicationCommands.Open" HorizontalAlignment="Center" Padding="22,8"
-                        Style="{DynamicResource AccentButtonStyle}">
-                <local:IconLabel Glyph="&#xE8E5;" Text="{DynamicResource Empty.Open}" />
-            </Button>
-                <Button Click="CreateFromWeb_Click" HorizontalAlignment="Center" Padding="22,8" Margin="0,10,0,0"
-                        ToolTip="{DynamicResource New.Tip}">
-                    <local:IconLabel Glyph="&#xE753;" Text="{DynamicResource New.Button}" />
-                </Button>
-                <Button Click="LiveTv_Click" HorizontalAlignment="Center" Padding="22,8" Margin="0,10,0,0"
-                        ToolTip="{DynamicResource Tip.LiveTv}">
-                    <local:IconLabel Glyph="&#xE7F4;" Text="{DynamicResource Btn.LiveTv}" />
-                </Button>
+                <!-- One column as wide as the widest button, so all three match in any language. -->
+                <StackPanel HorizontalAlignment="Center">
+                    <Button Command="ApplicationCommands.Open" HorizontalAlignment="Stretch" Padding="22,8"
+                            Style="{DynamicResource AccentButtonStyle}">
+                        <local:IconLabel Glyph="&#xE8E5;" Text="{DynamicResource Empty.Open}" />
+                    </Button>
+                    <Button Click="CreateFromWeb_Click" HorizontalAlignment="Stretch" Padding="22,8" Margin="0,10,0,0"
+                            ToolTip="{DynamicResource New.Tip}">
+                        <local:IconLabel Glyph="&#xE753;" Text="{DynamicResource New.Button}" />
+                    </Button>
+                    <Button Click="LiveTv_Click" HorizontalAlignment="Stretch" Padding="22,8" Margin="0,10,0,0"
+                            ToolTip="{DynamicResource Tip.LiveTv}">
+                        <local:IconLabel Glyph="&#xE7F4;" Text="{DynamicResource Btn.LiveTv}" />
+                    </Button>
+                </StackPanel>
             </StackPanel>
         </Grid>
 
