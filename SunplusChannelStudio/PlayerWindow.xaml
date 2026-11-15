@@ -16,12 +16,27 @@
                       ToolTip="{DynamicResource Play.SourceTip}" />
             <TextBlock x:Name="SourceLabel" DockPanel.Dock="Right" Text="{DynamicResource Play.Source}"
                        VerticalAlignment="Center" Margin="16,0,8,0" />
+            <ComboBox x:Name="QualityBox" DockPanel.Dock="Right" MinWidth="110" SelectionChanged="QualityBox_SelectionChanged"
+                      ToolTip="{DynamicResource Play.QualityTip}" />
+            <TextBlock DockPanel.Dock="Right" Text="{DynamicResource Play.Quality}" VerticalAlignment="Center" Margin="16,0,8,0" />
             <TextBlock x:Name="ChannelLabel" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
                        TextTrimming="CharacterEllipsis" />
         </DockPanel>
 
         <Grid Grid.Row="1" Background="Black">
-            <vlc:VideoView x:Name="Video" />
+            <!-- Content of the VideoView is drawn on a layer above the video, so the spinner shows over it. -->
+            <vlc:VideoView x:Name="Video">
+                <Grid x:Name="Spinner" Width="56" Height="56" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
+                    <Grid.RenderTransform>
+                        <RotateTransform x:Name="SpinnerTurn" />
+                    </Grid.RenderTransform>
+                    <Ellipse Stroke="#40FFFFFF" StrokeThickness="5" />
+                    <!-- A quarter arc of the ring, turning. -->
+                    <Path Stroke="{DynamicResource AccentFillColorDefaultBrush}" StrokeThickness="5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                          Data="M 28,2.5 A 25.5,25.5 0 0 1 53.5,28" />
+                </Grid>
+            </vlc:VideoView>
         </Grid>
 
         <DockPanel Grid.Row="2" Margin="16,8,16,10">

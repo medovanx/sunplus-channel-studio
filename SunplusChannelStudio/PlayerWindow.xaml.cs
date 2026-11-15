@@ -37,7 +37,8 @@ public partial class PlayerWindow : Window
         _player.Playing += (_, _) => Dispatcher.BeginInvoke(() => Status("Play.Playing"));
         _player.Buffering += (_, e) => Dispatcher.BeginInvoke(() =>
         {
-            if (e.Cache < 100) StatusLabel.Text = Loc.Format("Play.Buffering", (int)e.Cache);
+            ShowSpinner(e.Cache < 100);
+            StatusLabel.Text = e.Cache < 100 ? Loc.Format("Play.Buffering", (int)e.Cache) : Loc.Get("Play.Playing");
         });
         _player.EncounteredError += (_, _) => Dispatcher.BeginInvoke(TryNext);
         _player.EndReached += (_, _) => Dispatcher.BeginInvoke(TryNext);
@@ -47,6 +48,7 @@ public partial class PlayerWindow : Window
             SourceBox.Items.Add(new ComboBoxItem { Content = Describe(s), ToolTip = s.Url });
         SourceBox.Visibility = SourceLabel.Visibility = streams.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
         UpdateMute();
+        FillQualities();
         Loaded += (_, _) => SourceBox.SelectedIndex = 0;
     }
 
@@ -66,6 +68,36 @@ public partial class PlayerWindow : Window
         return string.Join(", ", parts);
     }
 
+    /// <summary>Largest picture heights offered; 0 lets the stream pick its best.</summary>
+    static readonly int[] Heights = [0, 1080, 720, 480, 360];
+
+    int HeightCap => QualityBox.SelectedItem is ComboBoxItem { Tag: int h } ? h : 0;
+
+    void FillQualities()
+    {
+        int saved = int.TryParse(Settings.GetString("playerQuality"), out var h) ? h : 0;
+        foreach (var height in Heights)
+            QualityBox.Items.Add(new ComboBoxItem { Content = height == 0 ? Loc.Get("Play.QualityAuto") : $"{height}p", Tag = height });
+        QualityBox.SelectedIndex = Math.Max(0, Array.IndexOf(Heights, saved));
+    }
+
+    /// <summary>A new cap applies by reopening the current source; it is remembered for next time.</summary>
+    void QualityBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!IsLoaded) return;
+        Settings.Set("playerQuality", HeightCap.ToString());
+        if (_current >= 0) Play(_current);
+    }
+
+    void ShowSpinner(bool show)
+    {
+        if (show == (Spinner.Visibility == Visibility.Visible)) return;
+        Spinner.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        SpinnerTurn.BeginAnimation(System.Windows.Media.RotateTransform.AngleProperty, show
+            ? new System.Windows.Media.Animation.DoubleAnimation(0, 360, TimeSpan.FromSeconds(0.9)) { RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever }
+            : null);
+    }
+
     void SourceBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (SourceBox.SelectedIndex >= 0 && SourceBox.SelectedIndex != _current) Play(SourceBox.SelectedIndex);
@@ -76,7 +108,10 @@ public partial class PlayerWindow : Window
         _current = index;
         var s = _streams[index];
         Status("Play.Connecting");
+        ShowSpinner(true);
         var options = new List<string>();
+        // For streams offering several sizes, VLC picks the best one no taller than this.
+        if (HeightCap > 0) options.Add($":adaptive-maxheight={HeightCap}");
         if (s.UserAgent is { } ua) options.Add($":http-user-agent={ua}");
         if (s.Referrer is { } r) options.Add($":http-referrer={r}");
         var media = new Media(_vlc!, new Uri(s.Url), options.ToArray());
@@ -98,6 +133,7 @@ public partial class PlayerWindow : Window
             SourceBox.SelectedIndex = _current + 1;
             return;
         }
+        ShowSpinner(false);
         Status("Play.Unavailable");
     }
 

@@ -225,6 +225,9 @@
     <sys:String x:Key="Watch.NoStream">لم يُعثر على بث عام على الإنترنت لقناة {0}. كثير من القنوات تبث عبر القمر الصناعي فقط.</sys:String>
     <sys:String x:Key="Play.Source">المصدر</sys:String>
     <sys:String x:Key="Play.SourceTip">مصادر بث عامة أخرى لهذه القناة</sys:String>
+    <sys:String x:Key="Play.Quality">الجودة</sys:String>
+    <sys:String x:Key="Play.QualityTip">أعلى دقة للصورة. الدقة الأقل تعمل أسرع على الاتصال البطيء. البث الذي يوفر دقة واحدة فقط لا يتأثر.</sys:String>
+    <sys:String x:Key="Play.QualityAuto">الأفضل</sys:String>
     <sys:String x:Key="Play.Connecting">جارٍ الاتصال...</sys:String>
     <sys:String x:Key="Play.Buffering">جارٍ التحميل {0}%</sys:String>
     <sys:String x:Key="Play.Playing">يعمل الآن</sys:String>

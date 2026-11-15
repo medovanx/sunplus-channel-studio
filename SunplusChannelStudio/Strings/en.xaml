@@ -223,6 +223,9 @@
     <sys:String x:Key="Watch.NoStream">No public internet stream was found for {0}. Many channels only broadcast by satellite.</sys:String>
     <sys:String x:Key="Play.Source">Source</sys:String>
     <sys:String x:Key="Play.SourceTip">Other public streams found for this channel</sys:String>
+    <sys:String x:Key="Play.Quality">Quality</sys:String>
+    <sys:String x:Key="Play.QualityTip">The highest picture size to use. Lower sizes load faster on a slow connection. Streams that offer only one size ignore it.</sys:String>
+    <sys:String x:Key="Play.QualityAuto">Best</sys:String>
     <sys:String x:Key="Play.Connecting">Connecting...</sys:String>
     <sys:String x:Key="Play.Buffering">Loading {0}%</sys:String>
     <sys:String x:Key="Play.Playing">Playing</sys:String>
