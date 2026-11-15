@@ -127,7 +127,7 @@ public static class ImportPlanner
         foreach (var c in picked.Where(c => c.Kind == ChangeKind.NewTransponder))
         {
             var template = db.Transponders.FirstOrDefault(t => t.SatelliteIndex == satelliteIndex) ?? db.Transponders.FirstOrDefault();
-            var tp = template is null ? new Transponder(new byte[Transponder.Size]) : Transponder.CloneFrom(template);
+            var tp = template is null ? Transponder.Create() : Transponder.CloneFrom(template);
             var src = c.Transponder!;
             tp.TrySetName($"{src.Frequency} {(src.Polarization == Polarity.Vertical ? "V" : "H")}");
             tp.Frequency = (ushort)src.Frequency;

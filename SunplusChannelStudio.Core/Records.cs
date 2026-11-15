@@ -47,6 +47,24 @@ public sealed class Satellite(byte[] raw) : RawRecord(raw)
     public int SignedPosition => West ? -(int)Position : (int)Position;
     public ushort LnbLow => U16(28);
     public ushort LnbHigh => U16(30);
+
+    /// <summary>
+    /// A new Ku-band satellite laid out like the receiver's own: the band and west bits in byte 0, 0x06 in
+    /// byte 1 on the first satellite and 0x02 on the rest (as in the factory list), a universal LNB
+    /// (9750/10600 MHz) and the trailing option byte 0x11.
+    /// </summary>
+    public static Satellite Create(string name, int signedPosition, bool first)
+    {
+        var sat = new Satellite(new byte[Size]);
+        sat.Raw[0] = (byte)(signedPosition < 0 ? 0x1e : 0x0e);
+        sat.Raw[1] = (byte)(first ? 0x06 : 0x02);
+        while (!sat.TrySetName(name) && name.Length > 1) name = name[..^1].TrimEnd();
+        sat.U32(24, (uint)Math.Abs(signedPosition));
+        sat.U16(28, 9750);
+        sat.U16(30, 10600);
+        sat.Raw[32] = 0x11;
+        return sat;
+    }
 }
 
 /// <summary>Transponder, 36 bytes: 16-byte name, frequency, symbol rate, satellite index, id, polarization.</summary>
@@ -65,6 +83,18 @@ public sealed class Transponder(byte[] raw) : RawRecord(raw)
 
     /// <summary>A new transponder copied from one on the same satellite, so the fields we do not decode stay valid.</summary>
     public static Transponder CloneFrom(Transponder template) => new(template.Raw.ToArray());
+
+    /// <summary>
+    /// A blank transponder laid out like the ones the receiver itself creates ("New TP"): byte 27 is 1 and
+    /// bytes 30 and 31 are 0xff. The caller sets name, frequency, rate, satellite, id and polarization.
+    /// </summary>
+    public static Transponder Create()
+    {
+        var tp = new Transponder(new byte[Size]);
+        tp.Raw[27] = 1;
+        tp.Raw[30] = tp.Raw[31] = 0xff;
+        return tp;
+    }
 
     /// <summary>0 is vertical, 1 is horizontal.</summary>
     public byte Polarization { get => Raw[24]; set => Raw[24] = value; }

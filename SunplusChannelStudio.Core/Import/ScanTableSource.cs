@@ -30,6 +30,16 @@ public static partial class ScanTableSource
 
     sealed record Entry(string Name, string Type);
 
+    /// <summary>Every position with a list, west to east, with the satellites listed there.</summary>
+    public static async Task<IReadOnlyList<(int Position, IReadOnlyList<string> Satellites)>> ListPositionsAsync(
+        HttpClient http, CancellationToken cancel = default) =>
+        (await http.GetFromJsonAsync<List<Entry>>(ListUrl, cancel) ?? [])
+            .Where(e => e.Type == "file" && PositionOf(e.Name) is not null)
+            .GroupBy(e => PositionOf(e.Name)!.Value)
+            .OrderBy(g => g.Key)
+            .Select(g => (g.Key, (IReadOnlyList<string>)g.Select(e => SatelliteName(e.Name)).Order(StringComparer.OrdinalIgnoreCase).ToList()))
+            .ToList();
+
     /// <summary>
     /// Downloads every file at the given positions and returns them as one list, tagged by position, so the
     /// import window can offer each position. Satellites sharing a position are merged.
@@ -45,7 +55,7 @@ public static partial class ScanTableSource
         if (files.Count == 0) throw new ImportFormatException(ImportProblem.NoTransponders, "No list for this position.");
 
         var list = new ImportedList { Format = "dtv-scan-tables" };
-        var names = new Dictionary<int, List<string>>();
+        var names = new Dictionary<int, List<(string Name, int Count)>>();
         foreach (var file in files)
         {
             int position = PositionOf(file)!.Value;
@@ -53,11 +63,12 @@ public static partial class ScanTableSource
             try { part = ListReader.Parse(await http.GetStringAsync(RawBase + Uri.EscapeDataString(file), cancel)); }
             catch (ImportFormatException) { continue; } // an empty or odd file should not sink the rest
             list.Transponders.AddRange(part.Transponders.Select(t => t with { Position = position }));
-            (names.TryGetValue(position, out var n) ? n : names[position] = []).Add(SatelliteName(file));
+            (names.TryGetValue(position, out var n) ? n : names[position] = []).Add((SatelliteName(file), part.Transponders.Count));
         }
         if (list.Transponders.Count == 0) throw new ImportFormatException(ImportProblem.NoTransponders, "The lists had no transponders.");
+        // The satellite with the most transponders comes first; it is the one people know the position by.
         foreach (var (position, n) in names)
-            list.PositionNames[position] = $"{string.Join(", ", n)} ({ImportedList.PositionLabel(position)})";
+            list.PositionNames[position] = $"{string.Join(", ", n.OrderByDescending(x => x.Count).ThenBy(x => x.Name).Select(x => x.Name))} ({ImportedList.PositionLabel(position)})";
         return list;
     }
 

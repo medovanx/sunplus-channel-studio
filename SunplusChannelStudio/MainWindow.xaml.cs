@@ -203,7 +203,24 @@ public partial class MainWindow : Window
             Say(ex is DatabaseFormatException f ? Loc.Get("Fmt." + f.Problem) : ex.Message, "Dlg.CannotOpen", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
+        ShowDatabase(db, path);
+    }
 
+    /// <summary>Builds a new database from the open transponder lists, for users with no database yet.</summary>
+    void CreateFromWeb_Click(object sender, RoutedEventArgs e)
+    {
+        if (!ConfirmDiscard()) return;
+        var window = new CreateFromWebWindow { Owner = this };
+        if (window.ShowDialog() != true || window.Database is not { } db) return;
+        ShowDatabase(db, null);
+        MarkDirty(); // not saved anywhere yet
+        Tabs.SelectedItem = TpTab;
+        StatusLabel.Text = Loc.Format("New.Done", db.Transponders.Count, db.Satellites[0].Name);
+    }
+
+    /// <summary>Puts a database on screen; a null path means it has not been saved yet.</summary>
+    void ShowDatabase(ChannelDatabase db, string? path)
+    {
         _loading = true;
         _db = db;
         _path = path;
@@ -241,9 +258,14 @@ public partial class MainWindow : Window
             .ToList();
     }
 
-    void Save_Executed(object sender, ExecutedRoutedEventArgs e) => SaveTo(_path!);
+    void Save_Executed(object sender, ExecutedRoutedEventArgs e) => SaveOrAsk();
 
-    void SaveAs_Executed(object sender, ExecutedRoutedEventArgs e)
+    /// <summary>Saves to the open file, or asks where when the database is new.</summary>
+    bool SaveOrAsk() => _path is null ? SaveAs() : SaveTo(_path);
+
+    void SaveAs_Executed(object sender, ExecutedRoutedEventArgs e) => SaveAs();
+
+    bool SaveAs()
     {
         var dialog = new SaveFileDialog
         {
@@ -252,7 +274,7 @@ public partial class MainWindow : Window
             FileName = Path.GetFileName(_path),
             InitialDirectory = Path.GetDirectoryName(_path),
         };
-        if (dialog.ShowDialog(this) == true && dialog.FileName is { Length: > 0 } file) SaveTo(file);
+        return dialog.ShowDialog(this) == true && dialog.FileName is { Length: > 0 } file && SaveTo(file);
     }
 
     /// <summary>Copies the on-screen order and edits back into the database lists.</summary>
@@ -653,7 +675,7 @@ public partial class MainWindow : Window
         var answer = Say(Loc.Get("Dlg.SaveFirst"), "Dlg.Unsaved", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
         return answer switch
         {
-            MessageBoxResult.Yes => SaveTo(_path!),
+            MessageBoxResult.Yes => SaveOrAsk(),
             MessageBoxResult.No => true,
             _ => false,
         };
@@ -1041,7 +1063,7 @@ public partial class MainWindow : Window
         ImportButton.IsEnabled = open;
         CleanupButton.IsEnabled = open;
         DirtyLabel.Visibility = _dirty ? Visibility.Visible : Visibility.Collapsed;
-        var name = _path is null ? null : Path.GetFileName(_path);
+        var name = _path is not null ? Path.GetFileName(_path) : open ? Loc.Get("New.Untitled") : null;
         Title = name is null ? "Sunplus Channel Studio" : $"{name}{(_dirty ? " *" : "")} - Sunplus Channel Studio";
         FileLabel.Text = name ?? string.Empty;
         FileLabel.ToolTip = _path;

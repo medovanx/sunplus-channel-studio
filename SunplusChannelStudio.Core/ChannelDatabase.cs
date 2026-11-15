@@ -50,6 +50,9 @@ public sealed class ChannelDatabase
 
     public static ChannelDatabase Load(string path) => Parse(File.ReadAllBytes(path));
 
+    /// <summary>An empty database; 0x153 is the header word the receiver writes in its own saves.</summary>
+    public static ChannelDatabase Create(DatabaseType type) => new() { HeaderWord = 0x153, Type = type };
+
     public static ChannelDatabase Parse(byte[] data)
     {
         if (data.Length < HeaderSize || !data.AsSpan(0, 4).SequenceEqual(Magic))

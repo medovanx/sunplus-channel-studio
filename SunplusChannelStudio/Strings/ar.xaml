@@ -18,6 +18,17 @@
     <sys:String x:Key="Empty.Title">لا يوجد ملف مفتوح</sys:String>
     <sys:String x:Key="Empty.Body">افتح ملف قنوات جهاز الاستقبال (مثل english_db.bin)، أو اسحبه وأفلته على هذه النافذة.</sys:String>
     <sys:String x:Key="Empty.Open">افتح ملف القنوات</sys:String>
+    <sys:String x:Key="New.Button">إنشاء من الإنترنت</sys:String>
+    <sys:String x:Key="New.Tip">ليس لديك قاعدة قنوات؟ ابدأ واحدة بقمرك وتردداته من قوائم dtv-scan-tables المفتوحة</sys:String>
+    <sys:String x:Key="New.Title">إنشاء من الإنترنت</sys:String>
+    <sys:String x:Key="New.Intro">ابدأ قاعدة قنوات جديدة لجهازك. ستحصل على قمرك وكل تردداته من قوائم dtv-scan-tables المفتوحة على الإنترنت.</sys:String>
+    <sys:String x:Key="New.Satellite">موقع القمر</sys:String>
+    <sys:String x:Key="New.Loading">جارٍ تحميل قائمة الأقمار...</sys:String>
+    <sys:String x:Key="New.Format">نوع الجهاز</sys:String>
+    <sys:String x:Key="New.After">لا توجد قنوات بعد. احفظ الملف وانسخه إلى الجهاز ثم ابحث عن القنوات هناك، أو استخدم الاستيراد مع قائمة قنوات (lamedb) لإضافتها هنا.</sys:String>
+    <sys:String x:Key="New.Create">إنشاء</sys:String>
+    <sys:String x:Key="New.Untitled">بدون اسم</sys:String>
+    <sys:String x:Key="New.Done">قاعدة جديدة بها {0} تردد على {1}. استخدم حفظ باسم للاحتفاظ بها.</sys:String>
 
     <!-- Tabs -->
     <sys:String x:Key="Tab.Tv">التلفاز ({0})</sys:String>
