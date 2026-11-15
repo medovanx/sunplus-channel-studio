@@ -113,6 +113,8 @@
     <sys:String x:Key="Status.Saved">تم حفظ {0} بنوع {1}.</sys:String>
     <sys:String x:Key="Status.FormatOnSave">سيُكتب الملف بنوع {0} عند الحفظ.</sys:String>
     <sys:String x:Key="Status.ClearSearch">امسح البحث أولاً لنقل القنوات.</sys:String>
+    <sys:String x:Key="Status.ClearSort">انقر العمود المرتب مرة أخرى للرجوع إلى ترتيب الجهاز، ثم انقل القنوات.</sys:String>
+    <sys:String x:Key="Status.SortedBy">مرتبة حسب {0} للعرض فقط</sys:String>
     <sys:String x:Key="Status.Deleted">تم حذف {0}.</sys:String>
     <sys:String x:Key="Status.FavoriteSet">تم ضبط مجموعة المفضلة إلى {0}.</sys:String>
     <sys:String x:Key="Status.Moving">نقل {0}: أفلت عند الخط الظاهر.</sys:String>

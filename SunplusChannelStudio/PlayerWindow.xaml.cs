@@ -33,7 +33,7 @@ public partial class PlayerWindow : Window
         }
 
         _vlc ??= CreateVlc();
-        _player = new MediaPlayer(_vlc) { Volume = (int)VolumeSlider.Value, Mute = _capture };
+        _player = new MediaPlayer(_vlc) { Volume = (int)VolumeSlider.Value, Mute = VolumeSlider.Value == 0 };
         _player.Playing += (_, _) => Dispatcher.BeginInvoke(() => Status("Play.Playing"));
         _player.Buffering += (_, e) => Dispatcher.BeginInvoke(() =>
         {
@@ -103,23 +103,34 @@ public partial class PlayerWindow : Window
 
     void Status(string key) => StatusLabel.Text = Loc.Get(key);
 
+    /// <summary>The level Unmute goes back to; muting only moves the slider to 0.</summary>
+    double _unmutedVolume = 80;
+
     void Volume_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (_player is null) return;
         _player.Volume = (int)e.NewValue;
+        _player.Mute = e.NewValue == 0;
         UpdateMute();
     }
 
     void Mute_Click(object sender, RoutedEventArgs e)
     {
-        _player.Mute = !_player.Mute;
-        UpdateMute();
+        if (VolumeSlider.Value > 0)
+        {
+            _unmutedVolume = VolumeSlider.Value;
+            VolumeSlider.Value = 0;
+        }
+        else VolumeSlider.Value = _unmutedVolume;
     }
 
+    /// <summary>A speaker that shows the level, crossed out at 0; the tooltip says what a click does.</summary>
     void UpdateMute()
     {
         if (MuteButton is null || _player is null) return;
-        MuteButton.Content = Loc.Get(_player.Mute || VolumeSlider.Value == 0 ? "Play.Unmute" : "Play.Mute");
+        double v = VolumeSlider.Value;
+        MuteGlyph.Text = v == 0 ? "" : v < 34 ? "" : v < 67 ? "" : "";
+        MuteButton.SetResourceReference(ToolTipProperty, v == 0 ? "Play.Unmute" : "Play.Mute");
     }
 
     void Window_Closed(object? sender, EventArgs e)

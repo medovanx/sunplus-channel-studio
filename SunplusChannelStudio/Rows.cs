@@ -122,12 +122,23 @@ public sealed class ChannelRow(Channel channel, ChannelDatabase db) : Row
     public string PcrPid => Pid(Channel.PcrPid);
     public string PmtPid => Pid(Channel.PmtPid);
 
+    // Number keys for column sorting, so 9 sorts before 10; channels without a value go last.
+    public int FrequencySort => Tp?.Frequency ?? int.MaxValue;
+    public int SymbolRateSort => Tp?.SymbolRate ?? int.MaxValue;
+    public int VideoPidSort => PidSort(Channel.VideoPid);
+    public int AudioPidASort => PidSort(Channel.AudioPidA);
+    public int AudioPidBSort => PidSort(Channel.AudioPidB);
+    public int PcrPidSort => PidSort(Channel.PcrPid);
+    public int PmtPidSort => PidSort(Channel.PmtPid);
+
     // A PID is 13 bits; the receiver keeps flags in the top 3. 0x1FFF is the null PID (no stream).
     static string Pid(ushort raw)
     {
         int pid = raw & 0x1FFF;
         return pid is 0 or 0x1FFF ? "" : pid.ToString();
     }
+
+    static int PidSort(ushort raw) => (raw & 0x1FFF) is var pid and not (0 or 0x1FFF) ? pid : int.MaxValue;
 }
 
 public sealed class TransponderRow(Transponder tp, int index, ChannelDatabase db) : Row

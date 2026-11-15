@@ -62,6 +62,7 @@ public partial class MainWindow : Window
             grid.PreviewMouseMove += ChannelGrid_PreviewMouseMove;
             grid.Drop += ChannelGrid_Drop;
             grid.DragOver += ChannelGrid_DragOver;
+            grid.Sorting += ChannelGrid_Sorting;
             grid.DragLeave += ChannelGrid_DragLeave;
             grid.SelectionChanged += (_, _) => { UpdateStatus(); UpdateWatchAvailability(); };
         }
@@ -108,7 +109,7 @@ public partial class MainWindow : Window
 
     static void BuildChannelColumns(DataGrid grid)
     {
-        DataGridTextColumn Text(string header, string path, double width, bool readOnly = true, bool right = false)
+        DataGridTextColumn Text(string header, string path, double width, bool readOnly = true, bool right = false, string? sortBy = null)
         {
             var binding = new Binding(path);
             if (!readOnly)
@@ -123,13 +124,14 @@ public partial class MainWindow : Window
                 IsReadOnly = readOnly,
                 // 0 = the stretching column; anything else sizes to its header and content.
                 Width = width > 0 ? DataGridLength.Auto : new DataGridLength(1, DataGridLengthUnitType.Star),
+                SortMemberPath = sortBy ?? path,
             };
             col.ElementStyle = CellStyle(right);
             if (right) NumericColumns.Add(col);
             return col;
         }
 
-        grid.Columns.Add(Text("Col.Number", nameof(ChannelRow.Position), 56, readOnly: false, right: true));
+        grid.Columns.Add(Text("Col.Number", nameof(ChannelRow.Position), 56, readOnly: false, right: true, sortBy: nameof(ChannelRow.Number)));
         var name = Text("Col.Name", nameof(ChannelRow.Name), 0, readOnly: false);
         name.MinWidth = 200;
         grid.Columns.Add(name);
@@ -153,16 +155,16 @@ public partial class MainWindow : Window
         grid.Columns.Add(Text("Col.Quality", nameof(ChannelRow.Quality), 70));
         grid.Columns.Add(Text("Col.Access", nameof(ChannelRow.Access), 92));
         grid.Columns.Add(Text("Col.Favorite", nameof(ChannelRow.Favorite), 92));
-        grid.Columns.Add(Text("Col.Frequency", nameof(ChannelRow.Frequency), 92, right: true));
+        grid.Columns.Add(Text("Col.Frequency", nameof(ChannelRow.Frequency), 92, right: true, sortBy: nameof(ChannelRow.FrequencySort)));
         grid.Columns.Add(Text("Col.Polarization", nameof(ChannelRow.Polarization), 98));
-        grid.Columns.Add(Text("Col.SymbolRate", nameof(ChannelRow.SymbolRate), 104, right: true));
+        grid.Columns.Add(Text("Col.SymbolRate", nameof(ChannelRow.SymbolRate), 104, right: true, sortBy: nameof(ChannelRow.SymbolRateSort)));
         grid.Columns.Add(Text("Col.Satellite", nameof(ChannelRow.Satellite), 110));
         grid.Columns.Add(Text("Col.Sid", nameof(ChannelRow.ServiceId), 64, right: true));
-        grid.Columns.Add(Text("Col.Video", nameof(ChannelRow.VideoPid), 82, right: true));
-        grid.Columns.Add(Text("Col.AudioA", nameof(ChannelRow.AudioPidA), 74, right: true));
-        grid.Columns.Add(Text("Col.AudioB", nameof(ChannelRow.AudioPidB), 74, right: true));
-        grid.Columns.Add(Text("Col.Pcr", nameof(ChannelRow.PcrPid), 62, right: true));
-        grid.Columns.Add(Text("Col.Pmt", nameof(ChannelRow.PmtPid), 62, right: true));
+        grid.Columns.Add(Text("Col.Video", nameof(ChannelRow.VideoPid), 82, right: true, sortBy: nameof(ChannelRow.VideoPidSort)));
+        grid.Columns.Add(Text("Col.AudioA", nameof(ChannelRow.AudioPidA), 74, right: true, sortBy: nameof(ChannelRow.AudioPidASort)));
+        grid.Columns.Add(Text("Col.AudioB", nameof(ChannelRow.AudioPidB), 74, right: true, sortBy: nameof(ChannelRow.AudioPidBSort)));
+        grid.Columns.Add(Text("Col.Pcr", nameof(ChannelRow.PcrPid), 62, right: true, sortBy: nameof(ChannelRow.PcrPidSort)));
+        grid.Columns.Add(Text("Col.Pmt", nameof(ChannelRow.PmtPid), 62, right: true, sortBy: nameof(ChannelRow.PmtPidSort)));
     }
 
     /// <summary>Number columns align to the end of the cell in left-to-right languages only.</summary>
@@ -206,6 +208,7 @@ public partial class MainWindow : Window
         FillTransponders();
         FormatBox.SelectedItem = FormatBox.Items.Cast<ComboBoxItem>().First(i => (DatabaseType)i.Tag == db.Type);
         SearchBox.Text = string.Empty;
+        ClearColumnSort();
         _loading = false;
         _dirty = false;
         ResetHistory();
@@ -285,6 +288,7 @@ public partial class MainWindow : Window
 
     void Sort_Click(object sender, RoutedEventArgs e)
     {
+        ClearColumnSort(); // sorting by category reorders the list itself
         if (_db is null || !CanReorder()) return;
         CommitEdits();
         // If the stream list is still loading, its copy on disk is used so the result never depends on timing.
@@ -606,11 +610,38 @@ public partial class MainWindow : Window
 
     bool Filtering => !string.IsNullOrWhiteSpace(SearchBox.Text);
 
+    /// <summary>True while a column header sort is showing the list in another order than the receiver's.</summary>
+    bool ColumnSorted => ActiveGrid is { } g && CollectionViewSource.GetDefaultView(g.ItemsSource).SortDescriptions.Count > 0;
+
     bool CanReorder()
     {
-        if (!Filtering) return true;
-        StatusLabel.Text = Loc.Get("Status.ClearSearch");
+        if (!Filtering && !ColumnSorted) return true;
+        StatusLabel.Text = Loc.Get(Filtering ? "Status.ClearSearch" : "Status.ClearSort");
         return false;
+    }
+
+    /// <summary>
+    /// Header clicks sort the view only; the receiver order is untouched. A third click on the same
+    /// column goes back to the receiver order.
+    /// </summary>
+    void ChannelGrid_Sorting(object sender, DataGridSortingEventArgs e)
+    {
+        CommitEdits();
+        if (e.Column.SortDirection == ListSortDirection.Descending)
+        {
+            e.Handled = true;
+            ClearColumnSort();
+        }
+        Dispatcher.BeginInvoke(UpdateStatus, System.Windows.Threading.DispatcherPriority.Background);
+    }
+
+    void ClearColumnSort()
+    {
+        foreach (var grid in new[] { TvGrid, RadioGrid })
+        {
+            CollectionViewSource.GetDefaultView(grid.ItemsSource)?.SortDescriptions.Clear();
+            foreach (var c in grid.Columns) c.SortDirection = null;
+        }
     }
 
     void MoveUp_Click(object sender, RoutedEventArgs e) => MoveBy(-1);
@@ -785,7 +816,7 @@ public partial class MainWindow : Window
         _dragArmed = false;
         _pendingSingleSelect = null;
         var grid = (DataGrid)sender;
-        if (Filtering) { StatusLabel.Text = Loc.Get("Status.ClearSearch"); return; }
+        if (!CanReorder()) return;
         var picked = Selected();
         if (picked.Count == 0) return;
         CommitEdits();
@@ -954,6 +985,8 @@ public partial class MainWindow : Window
         int selected = grid.SelectedItems.Count;
         var parts = new List<string> { Filtering ? Loc.Format("Status.Shown", shown, total) : Loc.Format("Status.Channels", total) };
         if (selected > 0) parts.Add(Loc.Format("Status.Selected", selected));
+        if (grid.Columns.FirstOrDefault(c => c.SortDirection is not null) is { } sorted)
+            parts.Add(Loc.Format("Status.SortedBy", sorted.Header));
         StatusLabel.Text = string.Join(Loc.Get("List.Separator"), parts) + ".";
     }
 

@@ -111,6 +111,8 @@
     <sys:String x:Key="Status.Saved">Saved {0} as {1}.</sys:String>
     <sys:String x:Key="Status.FormatOnSave">The file will be written as {0} on save.</sys:String>
     <sys:String x:Key="Status.ClearSearch">Clear the search to move channels.</sys:String>
+    <sys:String x:Key="Status.ClearSort">Click the sorted column again to go back to receiver order, then move channels.</sys:String>
+    <sys:String x:Key="Status.SortedBy">sorted by {0} for viewing only</sys:String>
     <sys:String x:Key="Status.Deleted">Deleted {0}.</sys:String>
     <sys:String x:Key="Status.FavoriteSet">Favourite group set to {0}.</sys:String>
     <sys:String x:Key="Status.Moving">Moving {0}: drop where the line shows.</sys:String>
