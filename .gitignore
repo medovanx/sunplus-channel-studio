@@ -13,3 +13,6 @@ folder.ico
 # Never commit real receiver databases
 *_db.bin
 *.bin.bak
+
+# Local copies of the release builds (published on GitHub Releases)
+releases/
