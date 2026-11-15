@@ -31,6 +31,7 @@ Sunplus Channel Studio is a fresh editor for the same files. It reads and writes
 - **Favourite groups.** Put channels into All, News, Science, Sports, Movies, Kids, Music, Fashion or Financial.
 - **Move to any position.** Type a new number in the # column, or send a whole selection straight to number 1 or anywhere else.
 - **Watch channels.** Preview a channel from a public internet stream before loading the list onto your receiver. Streams come from the open [iptv-org](https://github.com/iptv-org/iptv) catalogue and play inside the app; big news, entertainment and religious channels are usually found, while many smaller channels only broadcast by satellite.
+- **Sort by category.** Group the list into News, Religious, Sports, Kids, Movies, Drama, Documentary, Music and General, in the order you choose. Channels are recognised from English and Arabic names and the iptv-org catalogue; your order is remembered.
 - **Merge databases.** Bring the channels of another `.bin` database into the open one, for example `english_db.bin` and `english2_db.bin`. The preview leaves out channels you already have and keeps the merged channels' favourites and flags.
 - **Undo and revert.** `Ctrl+Z` and `Ctrl+Y` step back and forward through every change, and **Revert** returns to the file as last opened or saved.
 - **Import channel lists.** Update a satellite from an Enigma2 `lamedb`, a KingOfSat `.ini` download or a dtv-scan-tables file. You see every proposed change first: new transponders, symbol rate fixes, new channels and stale PIDs. Nothing is deleted, scrambled channels are left out unless you ask for them, and renames start unticked so your own names stay.
@@ -60,6 +61,14 @@ Sunplus Channel Studio is a fresh editor for the same files. It reads and writes
   <tr>
     <td align="center">Import a channel list, with a preview of every change</td>
     <td align="center">Clean up scrambled, test and duplicate channels</td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/sort.png" alt="Sort by category" /></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td align="center">Sort by category, in your order</td>
+    <td></td>
   </tr>
   <tr>
     <td><img src="docs/screenshots/radio.png" alt="Radio list" /></td>

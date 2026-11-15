@@ -87,6 +87,7 @@ public partial class MainWindow : Window
             string? list = imp >= 0 && imp + 1 < args.Count ? args[imp + 1] : null;
             if (imp >= 0) args.RemoveRange(imp, Math.Min(2, args.Count - imp));
             bool cleanup = args.Remove("--cleanup");
+            bool sort = args.Remove("--sort");
             int w = args.IndexOf("--watch");
             string? watch = w >= 0 && w + 1 < args.Count ? args[w + 1] : null;
             if (w >= 0) args.RemoveRange(w, Math.Min(2, args.Count - w));
@@ -97,6 +98,7 @@ public partial class MainWindow : Window
                 TvGrid.SelectedItem = row;
                 Watch_Click(this, new RoutedEventArgs());
             }
+            if (sort && _db is not null) Sort_Click(this, new RoutedEventArgs());
             if (cleanup && _db is not null) Cleanup_Click(this, new RoutedEventArgs());
         };
         UpdateChrome();
@@ -260,6 +262,35 @@ public partial class MainWindow : Window
         StatusLabel.Text = Loc.Format("Cln.Done", window.Removed);
     }
 
+    // ---------- Sort by category ----------
+
+    void Sort_Click(object sender, RoutedEventArgs e)
+    {
+        if (_db is null || !CanReorder()) return;
+        CommitEdits();
+        // Uses the stream catalogue's categories only if it was downloaded before; sorting never downloads.
+        var catalog = _catalog is { IsCompletedSuccessfully: true } loaded ? loaded.Result : CatalogCache.TryLoadCached(CatalogFolder);
+        var rows = ActiveGrid == RadioGrid ? _radio : _tv;
+        var counts = rows.GroupBy(r => Categories.Classify(r.Name, catalog)).ToDictionary(g => g.Key, g => g.Count());
+        var window = new SortWindow(counts, hasRadio: rows == _tv && _radio.Count > 0) { Owner = this };
+        if (window.ShowDialog() != true) return;
+
+        void Apply(ObservableCollection<ChannelRow> list)
+        {
+            var sorted = Categories.Sort(list, r => r.Name, window.Order, window.Alphabetical, catalog);
+            for (int i = 0; i < sorted.Count; i++)
+            {
+                int from = list.IndexOf(sorted[i]);
+                if (from != i) list.Move(from, i);
+            }
+            Renumber(list);
+        }
+        Apply(rows);
+        if (window.AlsoRadio) Apply(_radio);
+        MarkDirty();
+        StatusLabel.Text = Loc.Get("Sort.Done");
+    }
+
     // ---------- Watch ----------
 
     static string CatalogFolder => Path.Combine(Path.GetDirectoryName(App.ErrorLog)!, "iptv");
@@ -271,11 +302,13 @@ public partial class MainWindow : Window
         StreamCatalog catalog;
         try
         {
-            _catalog ??= Task.Run(() =>
+            // The client must live until every download finishes, so the load is awaited inside the using.
+            var progress = new Progress<string>(file => StatusLabel.Text = Loc.Format("Watch.Downloading", file));
+            _catalog ??= Task.Run(async () =>
             {
-                using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+                using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(3) };
                 http.DefaultRequestHeaders.UserAgent.ParseAdd("SunplusChannelStudio");
-                return new CatalogCache(CatalogFolder, http).LoadAsync();
+                return await new CatalogCache(CatalogFolder, http).LoadAsync(progress);
             });
             catalog = await _catalog;
         }

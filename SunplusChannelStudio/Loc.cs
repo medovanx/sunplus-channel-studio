@@ -34,8 +34,6 @@ public static class Loc
     /// <summary>Raised after the language changed, for text built in code.</summary>
     public static event Action? Changed;
 
-    static string SettingsPath => Path.Combine(Path.GetDirectoryName(App.ErrorLog)!, "settings.json");
-
     /// <summary>Saved choice first, then the Windows display language.</summary>
     public static void Init()
     {
@@ -45,13 +43,7 @@ public static class Loc
             Apply(Environment.GetEnvironmentVariable("SCS_LANG")!, save: false);
             return;
         }
-        string? saved = null;
-        try
-        {
-            if (File.Exists(SettingsPath))
-                saved = JsonDocument.Parse(File.ReadAllText(SettingsPath)).RootElement.GetProperty("language").GetString();
-        }
-        catch (Exception ex) when (ex is IOException or JsonException or KeyNotFoundException or InvalidOperationException) { }
+        string? saved = Settings.GetString("language");
         Apply(saved ?? CultureInfo.CurrentUICulture.TwoLetterISOLanguageName, save: false);
     }
 
@@ -64,15 +56,7 @@ public static class Loc
         merged.Add(next);
         _strings = next;
 
-        if (save)
-        {
-            try
-            {
-                Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
-                File.WriteAllText(SettingsPath, JsonSerializer.Serialize(new { language = Language }));
-            }
-            catch (IOException) { }
-        }
+        if (save) Settings.Set("language", Language);
         Changed?.Invoke();
     }
 

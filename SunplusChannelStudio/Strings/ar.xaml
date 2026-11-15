@@ -245,4 +245,26 @@
     <sys:String x:Key="Dlg.RevertAsk">هل تريد إلغاء كل التغييرات منذ فتح الملف أو آخر حفظ؟</sys:String>
     <sys:String x:Key="Val.Number">أدخل رقم ترتيب من 1 فأكثر.</sys:String>
     <sys:String x:Key="Imp.SourceSatellite">القمر في الملف</sys:String>
+    <sys:String x:Key="Watch.Downloading">جارٍ تنزيل قائمة البث ({0})...</sys:String>
+    <!-- Sort by category -->
+    <sys:String x:Key="Btn.Sort">ترتيب</sys:String>
+    <sys:String x:Key="Tip.Sort">تجميع القائمة حسب التصنيف بالترتيب الذي تختاره</sys:String>
+    <sys:String x:Key="Sort.Title">الترتيب حسب التصنيف</sys:String>
+    <sys:String x:Key="Sort.Intro">رتّب التصنيفات كما تريدها في القائمة. تبقى القنوات بترتيبها الحالي داخل كل تصنيف.</sys:String>
+    <sys:String x:Key="Sort.Count">{0} قناة</sys:String>
+    <sys:String x:Key="Sort.Alphabetical">ترتيب الأسماء أبجديًا داخل كل تصنيف</sys:String>
+    <sys:String x:Key="Sort.AlsoRadio">ترتيب قائمة الراديو أيضًا</sys:String>
+    <sys:String x:Key="Sort.Apply">ترتيب</sys:String>
+    <sys:String x:Key="Sort.Reset">الترتيب الافتراضي</sys:String>
+    <sys:String x:Key="Sort.ResetTip">العودة إلى ترتيب التصنيفات المقترح</sys:String>
+    <sys:String x:Key="Sort.Done">تم الترتيب حسب التصنيف. اضغط Ctrl+Z للتراجع.</sys:String>
+    <sys:String x:Key="Cat.Religious">دينية</sys:String>
+    <sys:String x:Key="Cat.News">أخبار</sys:String>
+    <sys:String x:Key="Cat.Sports">رياضة</sys:String>
+    <sys:String x:Key="Cat.Kids">أطفال</sys:String>
+    <sys:String x:Key="Cat.Movies">أفلام</sys:String>
+    <sys:String x:Key="Cat.Drama">دراما ومسلسلات</sys:String>
+    <sys:String x:Key="Cat.Music">موسيقى وراديو</sys:String>
+    <sys:String x:Key="Cat.Documentary">وثائقية وتعليمية</sys:String>
+    <sys:String x:Key="Cat.General">عامة</sys:String>
 </ResourceDictionary>

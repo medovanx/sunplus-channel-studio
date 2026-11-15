@@ -243,4 +243,26 @@
     <sys:String x:Key="Dlg.RevertAsk">Throw away all changes since the file was opened or last saved?</sys:String>
     <sys:String x:Key="Val.Number">Enter a position number, 1 or more.</sys:String>
     <sys:String x:Key="Imp.SourceSatellite">Satellite in file</sys:String>
+    <sys:String x:Key="Watch.Downloading">Downloading the stream list ({0})...</sys:String>
+    <!-- Sort by category -->
+    <sys:String x:Key="Btn.Sort">Sort</sys:String>
+    <sys:String x:Key="Tip.Sort">Group the list by category, in the order you choose</sys:String>
+    <sys:String x:Key="Sort.Title">Sort by category</sys:String>
+    <sys:String x:Key="Sort.Intro">Put the categories in the order you want them in the list. Channels keep their current order inside each category.</sys:String>
+    <sys:String x:Key="Sort.Count">{0} channels</sys:String>
+    <sys:String x:Key="Sort.Alphabetical">Sort names A to Z inside each category</sys:String>
+    <sys:String x:Key="Sort.AlsoRadio">Also sort the radio list</sys:String>
+    <sys:String x:Key="Sort.Apply">Sort</sys:String>
+    <sys:String x:Key="Sort.Reset">Default order</sys:String>
+    <sys:String x:Key="Sort.ResetTip">Go back to the suggested category order</sys:String>
+    <sys:String x:Key="Sort.Done">Sorted by category. Ctrl+Z undoes it.</sys:String>
+    <sys:String x:Key="Cat.Religious">Religious</sys:String>
+    <sys:String x:Key="Cat.News">News</sys:String>
+    <sys:String x:Key="Cat.Sports">Sports</sys:String>
+    <sys:String x:Key="Cat.Kids">Kids</sys:String>
+    <sys:String x:Key="Cat.Movies">Movies</sys:String>
+    <sys:String x:Key="Cat.Drama">Drama and series</sys:String>
+    <sys:String x:Key="Cat.Music">Music and radio</sys:String>
+    <sys:String x:Key="Cat.Documentary">Documentary and education</sys:String>
+    <sys:String x:Key="Cat.General">General</sys:String>
 </ResourceDictionary>

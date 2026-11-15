@@ -202,6 +202,9 @@
                     ToolTip="{DynamicResource Tip.Watch}">
                 <local:IconLabel Glyph="&#xE768;" Text="{DynamicResource Btn.Watch}" />
             </Button>
+            <Button x:Name="SortButton" Margin="4,0,0,0" Padding="10,5" Click="Sort_Click" ToolTip="{DynamicResource Tip.Sort}">
+                <local:IconLabel Glyph="&#xE8CB;" Text="{DynamicResource Btn.Sort}" />
+            </Button>
             <Button x:Name="UpButton" Margin="10,0,0,0" Padding="10,5" Click="MoveUp_Click" ToolTip="{DynamicResource Tip.Up}">
                 <local:IconLabel Glyph="&#xE74A;" Text="{DynamicResource Btn.Up}" />
             </Button>

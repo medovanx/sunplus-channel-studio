@@ -31,6 +31,7 @@ public sealed class StreamCatalog
 
     readonly Dictionary<string, List<string>> _idsByName = new(StringComparer.Ordinal);
     readonly Dictionary<string, List<LiveStream>> _streamsById = new(StringComparer.OrdinalIgnoreCase);
+    readonly Dictionary<string, string[]> _categoriesByName = new(StringComparer.Ordinal);
 
     public int ChannelCount { get; private set; }
     public int StreamCount { get; private set; }
@@ -67,12 +68,23 @@ public sealed class StreamCatalog
         {
             foreach (var e in doc.RootElement.EnumerateArray())
             {
-                if (Str(e, "id") is not { } id || blocked.Contains(id) || !catalog._streamsById.ContainsKey(id)) continue;
-                catalog.ChannelCount++;
+                if (Str(e, "id") is not { } id || blocked.Contains(id)) continue;
                 var names = new List<string>();
                 if (Str(e, "name") is { } name) names.Add(name);
                 if (e.TryGetProperty("alt_names", out var alts) && alts.ValueKind == JsonValueKind.Array)
                     names.AddRange(alts.EnumerateArray().Select(a => a.GetString()).OfType<string>());
+
+                // Categories are kept for every channel, streams or not, for sorting by category.
+                if (e.TryGetProperty("categories", out var cats) && cats.ValueKind == JsonValueKind.Array)
+                {
+                    var tags = cats.EnumerateArray().Select(c => c.GetString()).OfType<string>().ToArray();
+                    if (tags.Length > 0)
+                        foreach (var key in names.Select(Normalize).Where(k => k.Length > 1))
+                            catalog._categoriesByName.TryAdd(key, tags);
+                }
+
+                if (!catalog._streamsById.ContainsKey(id)) continue;
+                catalog.ChannelCount++;
                 foreach (var key in names.Select(Normalize).Where(k => k.Length > 1).Distinct())
                 {
                     if (!catalog._idsByName.TryGetValue(key, out var ids)) catalog._idsByName[key] = ids = [];
@@ -97,6 +109,10 @@ public sealed class StreamCatalog
             .ThenByDescending(s => QualityRank(s.Quality))
             .ToList();
     }
+
+    /// <summary>The catalogue's categories for a channel name (such as "news" or "religious"), or null.</summary>
+    public IReadOnlyList<string>? CategoriesOf(string channelName) =>
+        _categoriesByName.TryGetValue(Normalize(channelName), out var tags) ? tags : null;
 
     /// <summary>
     /// Folds a channel name to a matching key: case, Arabic letter variants, tatweel, diacritics,
