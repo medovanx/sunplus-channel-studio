@@ -39,6 +39,16 @@ public class StreamTests(ITestOutputHelper output)
     public void Normalizes_names(string name, string key) => Assert.Equal(key, StreamCatalog.Normalize(name));
 
     [Fact]
+    public void Lists_every_channel_with_a_stream_for_browsing()
+    {
+        var c = Catalog();
+        // No Stream has nothing to play and Pirate is on the blocklist; the rest come A to Z with their country.
+        Assert.Equal([("Al Jazeera", "QA"), ("Iqraa TV", "SA")], c.Channels.Select(x => (x.Name, x.Country)));
+        var aj = c.StreamsOf(c.Channels[0]);
+        Assert.Equal(c.Find("Al Jazeera").Select(s => s.Url), aj.Select(s => s.Url)); // same best-first order as Find
+    }
+
+    [Fact]
     public void Matches_english_and_arabic_names()
     {
         var c = Catalog();

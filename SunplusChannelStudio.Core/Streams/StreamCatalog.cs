@@ -13,6 +13,9 @@ public sealed record LiveStream(string Url, string Title, string? Quality, strin
     public string Host => Uri.TryCreate(Url, UriKind.Absolute, out var u) ? u.Host : "";
 }
 
+/// <summary>A catalogue channel that has at least one stream: its iptv-org id, name, country code and categories.</summary>
+public sealed record CatalogChannel(string Id, string Name, string? Country, IReadOnlyList<string> Categories);
+
 /// <summary>
 /// Matches channel names to public live streams from the iptv-org catalogue
 /// (https://github.com/iptv-org/iptv, public domain data). The app only links to streams;
@@ -32,6 +35,10 @@ public sealed class StreamCatalog
     readonly Dictionary<string, List<string>> _idsByName = new(StringComparer.Ordinal);
     readonly Dictionary<string, List<LiveStream>> _streamsById = new(StringComparer.OrdinalIgnoreCase);
     readonly Dictionary<string, string[]> _categoriesByName = new(StringComparer.Ordinal);
+    readonly List<CatalogChannel> _channels = [];
+
+    /// <summary>Every channel with a stream, A to Z, for browsing without a channel database.</summary>
+    public IReadOnlyList<CatalogChannel> Channels => _channels;
 
     public int ChannelCount { get; private set; }
     public int StreamCount { get; private set; }
@@ -85,6 +92,11 @@ public sealed class StreamCatalog
 
                 if (!catalog._streamsById.ContainsKey(id)) continue;
                 catalog.ChannelCount++;
+                if (names.Count > 0)
+                    catalog._channels.Add(new CatalogChannel(id, names[0], Str(e, "country"),
+                        e.TryGetProperty("categories", out var c) && c.ValueKind == JsonValueKind.Array
+                            ? c.EnumerateArray().Select(x => x.GetString()).OfType<string>().ToArray()
+                            : []));
                 foreach (var key in names.Select(Normalize).Where(k => k.Length > 1).Distinct())
                 {
                     if (!catalog._idsByName.TryGetValue(key, out var ids)) catalog._idsByName[key] = ids = [];
@@ -92,8 +104,13 @@ public sealed class StreamCatalog
                 }
             }
         }
+        catalog._channels.Sort((a, b) => StringComparer.CurrentCultureIgnoreCase.Compare(a.Name, b.Name));
         return catalog;
     }
+
+    /// <summary>A catalogue channel's streams, best first.</summary>
+    public IReadOnlyList<LiveStream> StreamsOf(CatalogChannel channel) =>
+        _streamsById.TryGetValue(channel.Id, out var list) ? Best(list) : [];
 
     /// <summary>
     /// Streams for a channel name, best first: always-on before part-time, not geo-blocked first, higher quality first.
@@ -103,12 +120,15 @@ public sealed class StreamCatalog
     {
         var key = Normalize(channelName);
         if (key.Length < 2 || !_idsByName.TryGetValue(key, out var ids)) return [];
-        return ids.SelectMany(id => _streamsById[id])
-            .OrderBy(s => s.NotAlwaysOn)
+        return Best(ids.SelectMany(id => _streamsById[id]));
+    }
+
+    /// <summary>Always-on before part-time, not geo-blocked first, higher quality first.</summary>
+    static List<LiveStream> Best(IEnumerable<LiveStream> streams) =>
+        streams.OrderBy(s => s.NotAlwaysOn)
             .ThenBy(s => s.GeoBlocked)
             .ThenByDescending(s => QualityRank(s.Quality))
             .ToList();
-    }
 
     /// <summary>The catalogue's categories for a channel name (such as "news" or "religious"), or null.</summary>
     public IReadOnlyList<string>? CategoriesOf(string channelName) =>
