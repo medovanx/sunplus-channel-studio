@@ -27,9 +27,38 @@
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
     <!-- ThemeMode (the Fluent theme) is still flagged experimental in WPF. -->
     <NoWarn>$(NoWarn);WPF0001</NoWarn>
+    <!-- Framework UI text only in the app's own languages; keeps the self-contained exe smaller. -->
+    <SatelliteResourceLanguages>en;ar</SatelliteResourceLanguages>
     <!-- Ship only the 64-bit VLC engine. -->
     <VlcWindowsX86Enabled>false</VlcWindowsX86Enabled>
     <VlcWindowsArm64Enabled>false</VlcWindowsArm64Enabled>
   </PropertyGroup>
+
+  <!--
+    Only the VLC plugins internet stream playback needs (HTTP/HTTPS, HLS, MPEG-TS, the avcodec decoders,
+    Direct3D output, audio output). The full set is about 100 MB; this keeps the download small.
+    %2A is an escaped wildcard, as the LibVLC package expects.
+  -->
+  <ItemGroup>
+    <VlcWindowsX64IncludeFiles Include="libvlc.dll;libvlccore.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\access\libhttp_plugin.dll;plugins\access\libhttps_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\demux\libadaptive_plugin.dll;plugins\demux\libts_plugin.dll;plugins\demux\libes_plugin.dll;plugins\demux\libmp4_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\codec\libavcodec_plugin.dll;plugins\codec\libd3d11va_plugin.dll;plugins\codec\libdxva2_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\packetizer\%2A;plugins\stream_filter\%2A;plugins\audio_output\%2A;plugins\audio_mixer\%2A;plugins\audio_filter\%2A;plugins\video_chroma\%2A;plugins\d3d11\%2A;plugins\d3d9\%2A;plugins\logger\%2A" />
+    <VlcWindowsX64IncludeFiles Include="plugins\video_output\libdirect3d11_plugin.dll;plugins\video_output\libdirect3d9_plugin.dll;plugins\video_output\libwingdi_plugin.dll" />
+    <VlcWindowsX64IncludeFiles Include="plugins\video_filter\libdeinterlace_plugin.dll;plugins\misc\libgnutls_plugin.dll;plugins\misc\libxml_plugin.dll" />
+  </ItemGroup>
+
+  <!--
+    LibVLC loads its DLLs and plugins from the libvlc folder by path, so a single-file publish must leave
+    that folder next to the program instead of bundling it (this also keeps the LGPL libraries replaceable).
+  -->
+  <Target Name="KeepLibVlcBesideTheProgram" AfterTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ResolvedFileToPublish Update="@(ResolvedFileToPublish)"
+                             Condition="$([System.String]::Copy('%(ResolvedFileToPublish.RelativePath)').StartsWith('libvlc'))"
+                             ExcludeFromSingleFile="true" />
+    </ItemGroup>
+  </Target>
 
 </Project>
