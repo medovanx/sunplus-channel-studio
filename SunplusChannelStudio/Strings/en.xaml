@@ -21,6 +21,8 @@
     <sys:String x:Key="New.Title">Create from the web</sys:String>
     <sys:String x:Key="New.Intro">Start a new channel database for your receiver. It gets your satellite and all of its transponders from the open dtv-scan-tables lists on the internet.</sys:String>
     <sys:String x:Key="New.Satellite">Satellite position</sys:String>
+    <sys:String x:Key="New.SearchTip">Type a position (7W, 19.2E) or a satellite name (Nilesat, Astra)</sys:String>
+    <sys:String x:Key="New.NoMatch">No satellite matches.</sys:String>
     <sys:String x:Key="New.Loading">Loading the list of satellites...</sys:String>
     <sys:String x:Key="New.Format">Receiver format</sys:String>
     <sys:String x:Key="New.After">There are no channels yet. Save the file, copy it to the receiver and run a scan there to find them, or use Import with a channel list (lamedb) to add them here.</sys:String>

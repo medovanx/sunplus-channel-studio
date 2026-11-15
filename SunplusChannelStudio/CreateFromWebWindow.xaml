@@ -9,7 +9,9 @@
         <TextBlock Text="{DynamicResource New.Intro}" TextWrapping="Wrap" Margin="0,0,0,14" />
 
         <TextBlock Text="{DynamicResource New.Satellite}" Margin="0,0,0,6" />
-        <ComboBox x:Name="PositionBox" IsEnabled="False" SelectionChanged="PositionBox_SelectionChanged" />
+        <TextBox x:Name="SearchBox" IsEnabled="False" Margin="0,0,0,6" TextChanged="SearchBox_TextChanged"
+                 ToolTip="{DynamicResource New.SearchTip}" />
+        <ComboBox x:Name="PositionBox" IsEnabled="False" SelectionChanged="PositionBox_SelectionChanged" MaxDropDownHeight="360" />
         <TextBlock x:Name="LoadLabel" Text="{DynamicResource New.Loading}" Margin="0,6,0,0" TextWrapping="Wrap"
                    Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
 

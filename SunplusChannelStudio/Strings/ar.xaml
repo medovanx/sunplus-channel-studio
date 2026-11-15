@@ -23,6 +23,8 @@
     <sys:String x:Key="New.Title">إنشاء من الإنترنت</sys:String>
     <sys:String x:Key="New.Intro">ابدأ قاعدة قنوات جديدة لجهازك. ستحصل على قمرك وكل تردداته من قوائم dtv-scan-tables المفتوحة على الإنترنت.</sys:String>
     <sys:String x:Key="New.Satellite">موقع القمر</sys:String>
+    <sys:String x:Key="New.SearchTip">اكتب موقعاً (7W أو 19.2E) أو اسم قمر (Nilesat أو Astra)</sys:String>
+    <sys:String x:Key="New.NoMatch">لا يوجد قمر مطابق.</sys:String>
     <sys:String x:Key="New.Loading">جارٍ تحميل قائمة الأقمار...</sys:String>
     <sys:String x:Key="New.Format">نوع الجهاز</sys:String>
     <sys:String x:Key="New.After">لا توجد قنوات بعد. احفظ الملف وانسخه إلى الجهاز ثم ابحث عن القنوات هناك، أو استخدم الاستيراد مع قائمة قنوات (lamedb) لإضافتها هنا.</sys:String>
