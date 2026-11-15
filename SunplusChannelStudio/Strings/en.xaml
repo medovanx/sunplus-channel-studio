@@ -1,0 +1,132 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+    <!-- Toolbar -->
+    <sys:String x:Key="Btn.Open">Open</sys:String>
+    <sys:String x:Key="Btn.Save">Save</sys:String>
+    <sys:String x:Key="Btn.SaveAs">Save as</sys:String>
+    <sys:String x:Key="Lbl.Format">Format</sys:String>
+    <sys:String x:Key="Tip.Open">Open a database (Ctrl+O)</sys:String>
+    <sys:String x:Key="Tip.Save">Save (Ctrl+S)</sys:String>
+    <sys:String x:Key="Tip.SaveAs">Save to a new file (Ctrl+Shift+S)</sys:String>
+    <sys:String x:Key="Tip.Format">Record layout written on save. Pick the one your receiver uses.</sys:String>
+    <sys:String x:Key="Tip.Language">Language</sys:String>
+
+    <!-- Empty state -->
+    <sys:String x:Key="Empty.Title">No database open</sys:String>
+    <sys:String x:Key="Empty.Body">Open your receiver's channel database (for example english_db.bin), or drop it on this window.</sys:String>
+    <sys:String x:Key="Empty.Open">Open database</sys:String>
+
+    <!-- Tabs -->
+    <sys:String x:Key="Tab.Tv">TV ({0})</sys:String>
+    <sys:String x:Key="Tab.Radio">Radio ({0})</sys:String>
+    <sys:String x:Key="Tab.Tp">Transponders ({0})</sys:String>
+    <sys:String x:Key="Tab.Sat">Satellites ({0})</sys:String>
+
+    <!-- Channel actions -->
+    <sys:String x:Key="Search.Placeholder">Search channels</sys:String>
+    <sys:String x:Key="Tip.Search">Filter by name (Ctrl+F)</sys:String>
+    <sys:String x:Key="Btn.Up">Up</sys:String>
+    <sys:String x:Key="Btn.Down">Down</sys:String>
+    <sys:String x:Key="Btn.MoveTo">Move to...</sys:String>
+    <sys:String x:Key="Btn.Favorite">Favourite</sys:String>
+    <sys:String x:Key="Btn.Delete">Delete</sys:String>
+    <sys:String x:Key="Tip.Up">Move up (Ctrl+Up)</sys:String>
+    <sys:String x:Key="Tip.Down">Move down (Ctrl+Down)</sys:String>
+    <sys:String x:Key="Tip.MoveTo">Move to a position (Ctrl+M)</sys:String>
+    <sys:String x:Key="Tip.Favorite">Set the favourite group of the selected channels</sys:String>
+    <sys:String x:Key="Tip.Delete">Delete (Del)</sys:String>
+    <sys:String x:Key="Tip.Drag">Drag selected channels to move them</sys:String>
+
+    <!-- Context menu -->
+    <sys:String x:Key="Menu.Rename">Rename</sys:String>
+    <sys:String x:Key="Menu.FavoriteGroup">Favourite group</sys:String>
+    <sys:String x:Key="Menu.MoveUp">Move up</sys:String>
+    <sys:String x:Key="Menu.MoveDown">Move down</sys:String>
+    <sys:String x:Key="Menu.MoveTo">Move to position...</sys:String>
+    <sys:String x:Key="Menu.Delete">Delete</sys:String>
+
+    <!-- Columns -->
+    <sys:String x:Key="Col.Number">#</sys:String>
+    <sys:String x:Key="Col.Name">Name</sys:String>
+    <sys:String x:Key="Col.TpName">Name</sys:String>
+    <sys:String x:Key="Col.SatName">Name</sys:String>
+    <sys:String x:Key="Col.Type">Type</sys:String>
+    <sys:String x:Key="Col.Favorite">Favourite</sys:String>
+    <sys:String x:Key="Col.Transponder">Transponder</sys:String>
+    <sys:String x:Key="Col.Satellite">Satellite</sys:String>
+    <sys:String x:Key="Col.Sid">SID</sys:String>
+    <sys:String x:Key="Col.Video">Video PID</sys:String>
+    <sys:String x:Key="Col.AudioA">Audio A</sys:String>
+    <sys:String x:Key="Col.AudioB">Audio B</sys:String>
+    <sys:String x:Key="Col.Pcr">PCR</sys:String>
+    <sys:String x:Key="Col.Pmt">PMT</sys:String>
+    <sys:String x:Key="Col.Frequency">Frequency (MHz)</sys:String>
+    <sys:String x:Key="Col.Polarization">Polarization</sys:String>
+    <sys:String x:Key="Col.SymbolRate">Symbol rate (kS/s)</sys:String>
+    <sys:String x:Key="Col.Channels">Channels</sys:String>
+    <sys:String x:Key="Col.Position">Position</sys:String>
+    <sys:String x:Key="Col.Lnb">LNB</sys:String>
+    <sys:String x:Key="Col.Transponders">Transponders</sys:String>
+
+    <!-- Values -->
+    <sys:String x:Key="Pol.V">Vertical</sys:String>
+    <sys:String x:Key="Pol.H">Horizontal</sys:String>
+    <sys:String x:Key="Fav.All">All</sys:String>
+    <sys:String x:Key="Fav.News">News</sys:String>
+    <sys:String x:Key="Fav.Science">Science</sys:String>
+    <sys:String x:Key="Fav.Sports">Sports</sys:String>
+    <sys:String x:Key="Fav.Movies">Movies</sys:String>
+    <sys:String x:Key="Fav.Kids">Kids</sys:String>
+    <sys:String x:Key="Fav.Music">Music</sys:String>
+    <sys:String x:Key="Fav.Fashion">Fashion</sys:String>
+    <sys:String x:Key="Fav.Financial">Financial</sys:String>
+    <sys:String x:Key="Fav.None">None</sys:String>
+
+    <!-- Status bar -->
+    <sys:String x:Key="List.Separator" xml:space="preserve">, </sys:String>
+    <sys:String x:Key="Status.Ready">Ready</sys:String>
+    <sys:String x:Key="Status.Unsaved">Unsaved changes</sys:String>
+    <sys:String x:Key="Status.Saved">Saved {0} as {1}.</sys:String>
+    <sys:String x:Key="Status.FormatOnSave">The file will be written as {0} on save.</sys:String>
+    <sys:String x:Key="Status.ClearSearch">Clear the search to move channels.</sys:String>
+    <sys:String x:Key="Status.Deleted">Deleted {0}.</sys:String>
+    <sys:String x:Key="Status.FavoriteSet">Favourite group set to {0}.</sys:String>
+    <sys:String x:Key="Status.Moving">Moving {0}: drop where the line shows.</sys:String>
+    <sys:String x:Key="Status.Moved">Moved {0} to position {1}.</sys:String>
+    <sys:String x:Key="Status.Database">{0} database.</sys:String>
+    <sys:String x:Key="Status.Channels">{0} channels</sys:String>
+    <sys:String x:Key="Status.Shown">{0} of {1} channels shown</sys:String>
+    <sys:String x:Key="Status.Selected">{0} selected</sys:String>
+    <sys:String x:Key="Phrase.Channels">{0} channels</sys:String>
+    <sys:String x:Key="Phrase.Quoted">"{0}"</sys:String>
+
+    <!-- Dialogs -->
+    <sys:String x:Key="Dlg.FileFilter">Channel database (*.bin)|*.bin|All files (*.*)|*.*</sys:String>
+    <sys:String x:Key="Dlg.OpenTitle">Open channel database</sys:String>
+    <sys:String x:Key="Dlg.SaveAsTitle">Save channel database as</sys:String>
+    <sys:String x:Key="Dlg.CannotOpen">Cannot open the file</sys:String>
+    <sys:String x:Key="Dlg.CannotSave">Cannot save the file</sys:String>
+    <sys:String x:Key="Dlg.Unsaved">Unsaved changes</sys:String>
+    <sys:String x:Key="Dlg.SaveFirst">Save your changes first?</sys:String>
+    <sys:String x:Key="Dlg.DeleteTitle">Delete channels</sys:String>
+    <sys:String x:Key="Dlg.DeleteAsk">Delete {0}?</sys:String>
+    <sys:String x:Key="Dlg.MoveTitle">Move to position</sys:String>
+    <sys:String x:Key="Dlg.MoveAsk">Move {0} to position (1 to {1}):</sys:String>
+    <sys:String x:Key="Dlg.MoveButton">Move</sys:String>
+    <sys:String x:Key="Dlg.Cancel">Cancel</sys:String>
+    <sys:String x:Key="Dlg.NumberRange">Enter a number from {0} to {1}.</sys:String>
+    <sys:String x:Key="Err.Unexpected">Something went wrong: {0}&#x0a;&#x0a;Details were written to {1}.</sys:String>
+
+    <!-- File problems -->
+    <sys:String x:Key="Fmt.NotDatabase">This is not a Sunplus DK channel database (no db15 header).</sys:String>
+    <sys:String x:Key="Fmt.SizeMismatch">The file size does not match the counts in its header.</sys:String>
+    <sys:String x:Key="Fmt.UnknownRecordSize">The channel records have an unknown size.</sys:String>
+    <sys:String x:Key="Fmt.BadCount">The header holds an impossible record count.</sys:String>
+
+    <!-- Validation -->
+    <sys:String x:Key="Val.NeedName">A name is required.</sys:String>
+    <sys:String x:Key="Val.TooLong">Too long or unsupported characters (max {0} letters).</sys:String>
+    <sys:String x:Key="Val.Frequency">Frequency is in MHz (2000 to 15000).</sys:String>
+    <sys:String x:Key="Val.SymbolRate">Symbol rate is in kS/s (1000 to 45000).</sys:String>
+</ResourceDictionary>

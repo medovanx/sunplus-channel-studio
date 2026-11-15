@@ -1,0 +1,15 @@
+bin/
+obj/
+publish/
+.vs/
+*.user
+*.suo
+TestResults/
+
+# Windows folder icon, local only
+desktop.ini
+folder.ico
+
+# Never commit real receiver databases
+*_db.bin
+*.bin.bak

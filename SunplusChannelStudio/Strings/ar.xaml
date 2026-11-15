@@ -1,0 +1,134 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+    <!-- Terms follow the original editor's Arabic: transponder is "باقة", satellite is "قمر". -->
+
+    <!-- Toolbar -->
+    <sys:String x:Key="Btn.Open">فتح</sys:String>
+    <sys:String x:Key="Btn.Save">حفظ</sys:String>
+    <sys:String x:Key="Btn.SaveAs">حفظ باسم</sys:String>
+    <sys:String x:Key="Lbl.Format">نوع قاعدة البيانات</sys:String>
+    <sys:String x:Key="Tip.Open">فتح ملف القنوات (Ctrl+O)</sys:String>
+    <sys:String x:Key="Tip.Save">حفظ (Ctrl+S)</sys:String>
+    <sys:String x:Key="Tip.SaveAs">حفظ في ملف جديد (Ctrl+Shift+S)</sys:String>
+    <sys:String x:Key="Tip.Format">شكل السجلات الذي يُكتب عند الحفظ. اختر النوع الذي يستخدمه جهازك.</sys:String>
+    <sys:String x:Key="Tip.Language">اللغة</sys:String>
+
+    <!-- Empty state -->
+    <sys:String x:Key="Empty.Title">لا يوجد ملف مفتوح</sys:String>
+    <sys:String x:Key="Empty.Body">افتح ملف قنوات جهاز الاستقبال (مثل english_db.bin)، أو اسحبه وأفلته على هذه النافذة.</sys:String>
+    <sys:String x:Key="Empty.Open">افتح ملف القنوات</sys:String>
+
+    <!-- Tabs -->
+    <sys:String x:Key="Tab.Tv">التلفاز ({0})</sys:String>
+    <sys:String x:Key="Tab.Radio">الراديو ({0})</sys:String>
+    <sys:String x:Key="Tab.Tp">الباقات ({0})</sys:String>
+    <sys:String x:Key="Tab.Sat">الأقمار ({0})</sys:String>
+
+    <!-- Channel actions -->
+    <sys:String x:Key="Search.Placeholder">ابحث عن قناة</sys:String>
+    <sys:String x:Key="Tip.Search">تصفية حسب الاسم (Ctrl+F)</sys:String>
+    <sys:String x:Key="Btn.Up">لأعلى</sys:String>
+    <sys:String x:Key="Btn.Down">لأسفل</sys:String>
+    <sys:String x:Key="Btn.MoveTo">نقل إلى...</sys:String>
+    <sys:String x:Key="Btn.Favorite">المفضلة</sys:String>
+    <sys:String x:Key="Btn.Delete">حذف</sys:String>
+    <sys:String x:Key="Tip.Up">نقل لأعلى (Ctrl+Up)</sys:String>
+    <sys:String x:Key="Tip.Down">نقل لأسفل (Ctrl+Down)</sys:String>
+    <sys:String x:Key="Tip.MoveTo">نقل إلى رقم معين (Ctrl+M)</sys:String>
+    <sys:String x:Key="Tip.Favorite">اختر مجموعة المفضلة للقنوات المحددة</sys:String>
+    <sys:String x:Key="Tip.Delete">حذف (Del)</sys:String>
+    <sys:String x:Key="Tip.Drag">اسحب القنوات المحددة لنقلها</sys:String>
+
+    <!-- Context menu -->
+    <sys:String x:Key="Menu.Rename">إعادة تسمية</sys:String>
+    <sys:String x:Key="Menu.FavoriteGroup">مجموعة المفضلة</sys:String>
+    <sys:String x:Key="Menu.MoveUp">نقل لأعلى</sys:String>
+    <sys:String x:Key="Menu.MoveDown">نقل لأسفل</sys:String>
+    <sys:String x:Key="Menu.MoveTo">نقل إلى رقم...</sys:String>
+    <sys:String x:Key="Menu.Delete">حذف</sys:String>
+
+    <!-- Columns -->
+    <sys:String x:Key="Col.Number">رقم</sys:String>
+    <sys:String x:Key="Col.Name">اسم القناة</sys:String>
+    <sys:String x:Key="Col.TpName">اسم الباقة</sys:String>
+    <sys:String x:Key="Col.SatName">اسم القمر</sys:String>
+    <sys:String x:Key="Col.Type">النوع</sys:String>
+    <sys:String x:Key="Col.Favorite">المفضلة</sys:String>
+    <sys:String x:Key="Col.Transponder">الباقة</sys:String>
+    <sys:String x:Key="Col.Satellite">القمر</sys:String>
+    <sys:String x:Key="Col.Sid">SID</sys:String>
+    <sys:String x:Key="Col.Video">Video PID</sys:String>
+    <sys:String x:Key="Col.AudioA">Audio A</sys:String>
+    <sys:String x:Key="Col.AudioB">Audio B</sys:String>
+    <sys:String x:Key="Col.Pcr">PCR</sys:String>
+    <sys:String x:Key="Col.Pmt">PMT</sys:String>
+    <sys:String x:Key="Col.Frequency">التردد (MHz)</sys:String>
+    <sys:String x:Key="Col.Polarization">القطبية</sys:String>
+    <sys:String x:Key="Col.SymbolRate">معدل الترميز (kS/s)</sys:String>
+    <sys:String x:Key="Col.Channels">القنوات</sys:String>
+    <sys:String x:Key="Col.Position">الموقع</sys:String>
+    <sys:String x:Key="Col.Lnb">LNB</sys:String>
+    <sys:String x:Key="Col.Transponders">الباقات</sys:String>
+
+    <!-- Values -->
+    <sys:String x:Key="Pol.V">عمودي</sys:String>
+    <sys:String x:Key="Pol.H">أفقي</sys:String>
+    <sys:String x:Key="Fav.All">الكل</sys:String>
+    <sys:String x:Key="Fav.News">أخبار</sys:String>
+    <sys:String x:Key="Fav.Science">علوم</sys:String>
+    <sys:String x:Key="Fav.Sports">رياضة</sys:String>
+    <sys:String x:Key="Fav.Movies">أفلام</sys:String>
+    <sys:String x:Key="Fav.Kids">أطفال</sys:String>
+    <sys:String x:Key="Fav.Music">موسيقى</sys:String>
+    <sys:String x:Key="Fav.Fashion">أزياء</sys:String>
+    <sys:String x:Key="Fav.Financial">اقتصاد</sys:String>
+    <sys:String x:Key="Fav.None">بدون</sys:String>
+
+    <!-- Status bar -->
+    <sys:String x:Key="List.Separator" xml:space="preserve">، </sys:String>
+    <sys:String x:Key="Status.Ready">جاهز</sys:String>
+    <sys:String x:Key="Status.Unsaved">تغييرات غير محفوظة</sys:String>
+    <sys:String x:Key="Status.Saved">تم حفظ {0} بنوع {1}.</sys:String>
+    <sys:String x:Key="Status.FormatOnSave">سيُكتب الملف بنوع {0} عند الحفظ.</sys:String>
+    <sys:String x:Key="Status.ClearSearch">امسح البحث أولاً لنقل القنوات.</sys:String>
+    <sys:String x:Key="Status.Deleted">تم حذف {0}.</sys:String>
+    <sys:String x:Key="Status.FavoriteSet">تم ضبط مجموعة المفضلة إلى {0}.</sys:String>
+    <sys:String x:Key="Status.Moving">نقل {0}: أفلت عند الخط الظاهر.</sys:String>
+    <sys:String x:Key="Status.Moved">تم نقل {0} إلى الرقم {1}.</sys:String>
+    <sys:String x:Key="Status.Database">قاعدة بيانات {0}.</sys:String>
+    <sys:String x:Key="Status.Channels">{0} قناة</sys:String>
+    <sys:String x:Key="Status.Shown">يظهر {0} من {1} قناة</sys:String>
+    <sys:String x:Key="Status.Selected">{0} محددة</sys:String>
+    <sys:String x:Key="Phrase.Channels">{0} قناة</sys:String>
+    <sys:String x:Key="Phrase.Quoted">«{0}»</sys:String>
+
+    <!-- Dialogs -->
+    <sys:String x:Key="Dlg.FileFilter">ملف القنوات (*.bin)|*.bin|كل الملفات (*.*)|*.*</sys:String>
+    <sys:String x:Key="Dlg.OpenTitle">افتح ملف القنوات</sys:String>
+    <sys:String x:Key="Dlg.SaveAsTitle">احفظ ملف القنوات باسم</sys:String>
+    <sys:String x:Key="Dlg.CannotOpen">تعذر فتح الملف</sys:String>
+    <sys:String x:Key="Dlg.CannotSave">تعذر حفظ الملف</sys:String>
+    <sys:String x:Key="Dlg.Unsaved">تغييرات غير محفوظة</sys:String>
+    <sys:String x:Key="Dlg.SaveFirst">هل تريد حفظ التغييرات أولاً؟</sys:String>
+    <sys:String x:Key="Dlg.DeleteTitle">حذف القنوات</sys:String>
+    <sys:String x:Key="Dlg.DeleteAsk">هل تريد حذف {0}؟</sys:String>
+    <sys:String x:Key="Dlg.MoveTitle">نقل إلى رقم</sys:String>
+    <sys:String x:Key="Dlg.MoveAsk">نقل {0} إلى الرقم (من 1 إلى {1}):</sys:String>
+    <sys:String x:Key="Dlg.MoveButton">نقل</sys:String>
+    <sys:String x:Key="Dlg.Cancel">إلغاء</sys:String>
+    <sys:String x:Key="Dlg.NumberRange">أدخل رقمًا من {0} إلى {1}.</sys:String>
+    <sys:String x:Key="Err.Unexpected">حدث خطأ: {0}&#x0a;&#x0a;كُتبت التفاصيل في {1}.</sys:String>
+
+    <!-- File problems -->
+    <sys:String x:Key="Fmt.NotDatabase">هذا ليس ملف قنوات Sunplus DK (لا يبدأ بـ db15).</sys:String>
+    <sys:String x:Key="Fmt.SizeMismatch">حجم الملف لا يطابق الأعداد المكتوبة في رأسه.</sys:String>
+    <sys:String x:Key="Fmt.UnknownRecordSize">سجلات القنوات بحجم غير معروف.</sys:String>
+    <sys:String x:Key="Fmt.BadCount">رأس الملف يحتوي على عدد سجلات غير ممكن.</sys:String>
+
+    <!-- Validation -->
+    <sys:String x:Key="Val.NeedName">الاسم مطلوب.</sys:String>
+    <sys:String x:Key="Val.TooLong">الاسم طويل جدًا أو يحتوي على أحرف غير مدعومة (الحد {0} حرفًا).</sys:String>
+    <sys:String x:Key="Val.Frequency">التردد بالميغاهرتز (من 2000 إلى 15000).</sys:String>
+    <sys:String x:Key="Val.SymbolRate">معدل الترميز بوحدة kS/s (من 1000 إلى 45000).</sys:String>
+</ResourceDictionary>
