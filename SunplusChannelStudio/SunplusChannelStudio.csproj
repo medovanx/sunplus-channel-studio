@@ -45,7 +45,8 @@
     <VlcWindowsX64IncludeFiles Include="plugins\demux\libadaptive_plugin.dll;plugins\demux\libts_plugin.dll;plugins\demux\libes_plugin.dll;plugins\demux\libmp4_plugin.dll" />
     <VlcWindowsX64IncludeFiles Include="plugins\codec\libavcodec_plugin.dll;plugins\codec\libd3d11va_plugin.dll;plugins\codec\libdxva2_plugin.dll" />
     <VlcWindowsX64IncludeFiles Include="plugins\packetizer\%2A;plugins\stream_filter\%2A;plugins\audio_output\%2A;plugins\audio_mixer\%2A;plugins\audio_filter\%2A;plugins\video_chroma\%2A;plugins\d3d11\%2A;plugins\d3d9\%2A;plugins\logger\%2A" />
-    <VlcWindowsX64IncludeFiles Include="plugins\video_output\libdirect3d11_plugin.dll;plugins\video_output\libdirect3d9_plugin.dll;plugins\video_output\libwingdi_plugin.dll" />
+    <!-- drawable lets VLC draw inside our window; without it VLC opens a separate window of its own. -->
+    <VlcWindowsX64IncludeFiles Include="plugins\video_output\libdrawable_plugin.dll;plugins\video_output\libdirect3d11_plugin.dll;plugins\video_output\libdirect3d9_plugin.dll;plugins\video_output\libwingdi_plugin.dll" />
     <VlcWindowsX64IncludeFiles Include="plugins\video_filter\libdeinterlace_plugin.dll;plugins\misc\libgnutls_plugin.dll;plugins\misc\libxml_plugin.dll" />
   </ItemGroup>
 

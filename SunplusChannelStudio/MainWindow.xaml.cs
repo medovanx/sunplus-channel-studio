@@ -138,6 +138,15 @@ public partial class MainWindow : Window
         liveStyle.Setters.Add(new Setter(TextBlock.FontFamilyProperty, new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets")));
         liveStyle.Setters.Add(new Setter(TextBlock.ForegroundProperty, new DynamicResourceExtension("AccentTextFillColorPrimaryBrush")));
         liveStyle.Setters.Add(new Setter(TextBlock.TextAlignmentProperty, TextAlignment.Center));
+        // A selected row is filled with the accent colour, so there the icon takes the row's own text colour.
+        var selected = new DataTrigger
+        {
+            Binding = new Binding(nameof(DataGridRow.IsSelected)) { RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(DataGridRow), 1) },
+            Value = true,
+        };
+        selected.Setters.Add(new Setter(TextBlock.ForegroundProperty,
+            new Binding(nameof(DataGridCell.Foreground)) { RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(DataGridCell), 1) }));
+        liveStyle.Triggers.Add(selected);
         live.ElementStyle = liveStyle;
         grid.Columns.Add(live);
         grid.Columns.Add(Text("Col.Category", nameof(ChannelRow.Category), 110));
