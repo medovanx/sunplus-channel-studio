@@ -234,6 +234,8 @@
     <sys:String x:Key="Play.NotAlwaysOn">not always on</sys:String>
     <sys:String x:Key="Play.Mute">Mute</sys:String>
     <sys:String x:Key="Play.Unmute">Unmute</sys:String>
+    <sys:String x:Key="Play.FullScreen">Full screen (F11 or double-click the picture)</sys:String>
+    <sys:String x:Key="Play.ExitFullScreen">Exit full screen (Esc)</sys:String>
     <sys:String x:Key="Play.Notice">Public stream listed by iptv-org. This app does not host or record anything, and streams can stop working or be blocked in your country.</sys:String>
     <!-- Undo -->
     <sys:String x:Key="Btn.Undo">Undo</sys:String>

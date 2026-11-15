@@ -33,7 +33,8 @@ public partial class PlayerWindow : Window
         }
 
         _vlc ??= CreateVlc();
-        _player = new MediaPlayer(_vlc) { Volume = (int)VolumeSlider.Value, Mute = VolumeSlider.Value == 0 };
+        // VLC must not take the mouse and keys itself, so double-click and F11 reach this window.
+        _player = new MediaPlayer(_vlc) { Volume = (int)VolumeSlider.Value, Mute = VolumeSlider.Value == 0, EnableMouseInput = false, EnableKeyInput = false };
         _player.Playing += (_, _) => Dispatcher.BeginInvoke(() => Status("Play.Playing"));
         _player.Buffering += (_, e) => Dispatcher.BeginInvoke(() =>
         {
@@ -48,6 +49,7 @@ public partial class PlayerWindow : Window
             SourceBox.Items.Add(new ComboBoxItem { Content = Describe(s), ToolTip = s.Url });
         SourceBox.Visibility = SourceLabel.Visibility = streams.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
         UpdateMute();
+        UpdateFullScreenButton();
         FillQualities();
         Loaded += (_, _) => SourceBox.SelectedIndex = 0;
     }
@@ -138,6 +140,56 @@ public partial class PlayerWindow : Window
     }
 
     void Status(string key) => StatusLabel.Text = Loc.Get(key);
+
+    // ---------- Full screen ----------
+
+    bool _fullScreen;
+    WindowState _stateBefore;
+
+    /// <summary>
+    /// Full screen hides both bars and drops the frame; a borderless maximized window covers the taskbar too.
+    /// F11, a double-click on the picture or the button toggle it, and Esc leaves it.
+    /// </summary>
+    void SetFullScreen(bool on)
+    {
+        if (on == _fullScreen) return;
+        _fullScreen = on;
+        TopBar.Visibility = BottomBar.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
+        if (on)
+        {
+            _stateBefore = WindowState;
+            WindowState = WindowState.Normal; // the style only takes full effect when maximizing afresh
+            WindowStyle = WindowStyle.None;
+            ResizeMode = ResizeMode.NoResize;
+            WindowState = WindowState.Maximized;
+        }
+        else
+        {
+            WindowStyle = WindowStyle.SingleBorderWindow;
+            ResizeMode = ResizeMode.CanResize;
+            WindowState = _stateBefore;
+        }
+        UpdateFullScreenButton();
+    }
+
+    void UpdateFullScreenButton()
+    {
+        FullScreenGlyph.Text = _fullScreen ? "\uE73F" : "\uE740";
+        FullScreenButton.SetResourceReference(ToolTipProperty, _fullScreen ? "Play.ExitFullScreen" : "Play.FullScreen");
+    }
+
+    void FullScreen_Click(object sender, RoutedEventArgs e) => SetFullScreen(!_fullScreen);
+
+    void Video_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (e.ClickCount == 2) SetFullScreen(!_fullScreen);
+    }
+
+    void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.F11) { SetFullScreen(!_fullScreen); e.Handled = true; }
+        else if (e.Key == System.Windows.Input.Key.Escape && _fullScreen) { SetFullScreen(false); e.Handled = true; }
+    }
 
     /// <summary>The level Unmute goes back to; muting only moves the slider to 0.</summary>
     double _unmutedVolume = 80;

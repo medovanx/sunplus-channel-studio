@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
         Icon="Assets/icon.ico" Width="1024" Height="680" MinWidth="560" MinHeight="380"
-        WindowStartupLocation="CenterOwner" Closed="Window_Closed">
+        WindowStartupLocation="CenterOwner" Closed="Window_Closed" PreviewKeyDown="Window_PreviewKeyDown">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -11,7 +11,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <DockPanel Margin="16,10,16,10">
+        <DockPanel x:Name="TopBar" Margin="16,10,16,10">
             <ComboBox x:Name="SourceBox" DockPanel.Dock="Right" Width="420" SelectionChanged="SourceBox_SelectionChanged"
                       ToolTip="{DynamicResource Play.SourceTip}" />
             <TextBlock x:Name="SourceLabel" DockPanel.Dock="Right" Text="{DynamicResource Play.Source}"
@@ -26,6 +26,8 @@
         <Grid Grid.Row="1" Background="Black">
             <!-- Content of the VideoView is drawn on a layer above the video, so the spinner shows over it. -->
             <vlc:VideoView x:Name="Video">
+                <!-- The transparent fill makes the whole picture take a double-click for full screen. -->
+                <Grid Background="Transparent" MouseLeftButtonDown="Video_MouseLeftButtonDown">
                 <Grid x:Name="Spinner" Width="56" Height="56" HorizontalAlignment="Center" VerticalAlignment="Center"
                       Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
                     <Grid.RenderTransform>
@@ -36,16 +38,20 @@
                     <Path Stroke="{DynamicResource AccentFillColorDefaultBrush}" StrokeThickness="5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                           Data="M 28,2.5 A 25.5,25.5 0 0 1 53.5,28" />
                 </Grid>
+                </Grid>
             </vlc:VideoView>
         </Grid>
 
-        <DockPanel Grid.Row="2" Margin="16,8,16,10">
+        <DockPanel x:Name="BottomBar" Grid.Row="2" Margin="16,8,16,10">
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
                 <Button x:Name="MuteButton" Padding="10,6" Click="Mute_Click">
                     <TextBlock x:Name="MuteGlyph" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="16" />
                 </Button>
                 <Slider x:Name="VolumeSlider" Width="120" Minimum="0" Maximum="100" Value="80" Margin="8,0,0,0"
                         VerticalAlignment="Center" ValueChanged="Volume_Changed" />
+                <Button x:Name="FullScreenButton" Padding="10,6" Margin="12,0,0,0" Click="FullScreen_Click">
+                    <TextBlock x:Name="FullScreenGlyph" Text="&#xE740;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="16" />
+                </Button>
             </StackPanel>
             <StackPanel>
                 <TextBlock x:Name="StatusLabel" />

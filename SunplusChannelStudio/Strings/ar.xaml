@@ -236,6 +236,8 @@
     <sys:String x:Key="Play.NotAlwaysOn">لا يعمل طوال الوقت</sys:String>
     <sys:String x:Key="Play.Mute">كتم الصوت</sys:String>
     <sys:String x:Key="Play.Unmute">تشغيل الصوت</sys:String>
+    <sys:String x:Key="Play.FullScreen">ملء الشاشة (F11 أو انقر مرتين على الصورة)</sys:String>
+    <sys:String x:Key="Play.ExitFullScreen">الخروج من ملء الشاشة (Esc)</sys:String>
     <sys:String x:Key="Play.Notice">بث عام مُدرج في iptv-org. هذا البرنامج لا يستضيف ولا يسجل أي شيء، وقد يتوقف البث أو يُحجب في بلدك.</sys:String>
     <!-- Undo -->
     <sys:String x:Key="Btn.Undo">تراجع</sys:String>
