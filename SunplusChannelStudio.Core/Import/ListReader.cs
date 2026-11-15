@@ -24,7 +24,9 @@ public static class ListReader
         if (text.Contains("eDVB services /4/")) return Lamedb4(text);
         if (text.Contains("eDVB services /5/")) return Lamedb5(text);
         if (text.Contains("[DVB]", StringComparison.OrdinalIgnoreCase)) return KingOfSat(text);
-        if (text.Contains("[CHANNEL]", StringComparison.OrdinalIgnoreCase)) return ScanTable(text);
+        // Scan tables name their sections freely ("[OSN TV, CHANNEL]", "[Nilesat]"), but every entry has a delivery system.
+        if (text.Contains("[CHANNEL]", StringComparison.OrdinalIgnoreCase) || text.Contains("DELIVERY_SYSTEM", StringComparison.OrdinalIgnoreCase))
+            return ScanTable(text);
         throw new ImportFormatException(ImportProblem.UnknownFormat, "Unknown list format.");
     }
 

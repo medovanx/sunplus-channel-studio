@@ -22,7 +22,9 @@ public sealed class ImportChange
 
 /// <summary>
 /// Compares an imported list with the open database for one satellite and proposes changes.
-/// Channels are never deleted, and renames start unticked so the user's own names are kept.
+/// Channels are never deleted, and renames start unticked so the user's own names are kept. A new symbol rate
+/// for a transponder that already carries channels also starts unticked, and one the source itself disagrees
+/// on is not offered.
 /// </summary>
 public static class ImportPlanner
 {
@@ -36,8 +38,14 @@ public static class ImportPlanner
         var changes = new List<ImportChange>();
         var newTps = new List<ImportedTransponder>();
 
+        var channels = db.TvChannels.Concat(db.RadioChannels).ToList();
+        var inUse = channels.Select(c => (int)c.TransponderIndex).ToHashSet();
+
         foreach (var tp in Distinct(list.Transponders))
         {
+            // A source that lists the same transponder with different rates (such as an old and a new
+            // satellite file at one position) cannot say which rate is right.
+            bool disputed = list.Transponders.Any(o => Same(o, tp) && Math.Abs(o.SymbolRate - tp.SymbolRate) > SymbolRateTolerance);
             int idx = FindTransponder(db, satelliteIndex, tp);
             if (idx < 0)
             {
@@ -45,21 +53,21 @@ public static class ImportPlanner
                 changes.Add(new ImportChange
                 {
                     Kind = ChangeKind.NewTransponder, Name = Describe(tp), After = $"{tp.SymbolRate} kS/s",
-                    Selected = true, Transponder = tp,
+                    Selected = !disputed, Transponder = tp,
                 });
             }
-            else if (Math.Abs(db.Transponders[idx].SymbolRate - tp.SymbolRate) > SymbolRateTolerance)
+            else if (!disputed && Math.Abs(db.Transponders[idx].SymbolRate - tp.SymbolRate) > SymbolRateTolerance)
             {
+                // Channels on it mean the receiver already locks on at the stored rate, so the change is opt-in.
                 changes.Add(new ImportChange
                 {
                     Kind = ChangeKind.SymbolRate, Name = Describe(tp),
                     Before = $"{db.Transponders[idx].SymbolRate}", After = $"{tp.SymbolRate}",
-                    Selected = true, Transponder = tp, TransponderIndex = idx,
+                    Selected = !MatchingTransponderIndexes(db, satelliteIndex, tp).Any(inUse.Contains), Transponder = tp, TransponderIndex = idx,
                 });
             }
         }
 
-        var channels = db.TvChannels.Concat(db.RadioChannels).ToList();
         var seen = new List<(ImportedTransponder Tp, ushort Sid)>(); // the source can list a service twice too
         foreach (var s in list.Services)
         {
@@ -200,6 +208,18 @@ public static class ImportPlanner
     static bool Matches(Transponder t, int satelliteIndex, ImportedTransponder tp) =>
         t.SatelliteIndex == satelliteIndex && (t.Polarization == 0) == (tp.Polarization == Polarity.Vertical)
         && Math.Abs(t.Frequency - tp.Frequency) <= FrequencyTolerance;
+
+    /// <summary>Every entry on the satellite within tolerance; receivers often keep near-duplicates of one transponder.</summary>
+    static IEnumerable<int> MatchingTransponderIndexes(ChannelDatabase db, int satelliteIndex, ImportedTransponder tp)
+    {
+        for (int i = 0; i < db.Transponders.Count; i++)
+        {
+            var t = db.Transponders[i];
+            if (t.SatelliteIndex == satelliteIndex && (t.Polarization == 0) == (tp.Polarization == Polarity.Vertical)
+                && Math.Abs(t.Frequency - tp.Frequency) <= FrequencyTolerance)
+                yield return i;
+        }
+    }
 
     static int FindTransponder(ChannelDatabase db, int satelliteIndex, ImportedTransponder tp)
     {

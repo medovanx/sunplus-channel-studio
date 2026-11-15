@@ -31,8 +31,11 @@ public sealed class ImportedList
     public List<ImportedTransponder> Transponders { get; } = [];
     public List<ImportedService> Services { get; } = [];
 
-    /// <summary>Names for the groups in <see cref="Positions"/> when they are satellites of another database.</summary>
+    /// <summary>Names for the groups in <see cref="Positions"/>, such as the satellites at each position.</summary>
     public Dictionary<int, string> PositionNames { get; } = [];
+
+    /// <summary>True when the groups are another database's satellites keyed by index, not orbital positions.</summary>
+    public bool GroupsAreSatelliteIndexes { get; init; }
 
     public string Label(int position) => PositionNames.TryGetValue(position, out var name) ? name : PositionLabel(position);
 
@@ -42,7 +45,7 @@ public sealed class ImportedList
     /// </summary>
     public static ImportedList FromDatabase(ChannelDatabase source, string format)
     {
-        var list = new ImportedList { Format = format };
+        var list = new ImportedList { Format = format, GroupsAreSatelliteIndexes = true };
         foreach (var (sat, i) in source.Satellites.Select((s, i) => (s, i))) list.PositionNames[i] = sat.Name;
         ImportedTransponder Tp(Transponder t) => new(t.Frequency, t.Polarization == 0 ? Polarity.Vertical : Polarity.Horizontal, t.SymbolRate, t.SatelliteIndex);
         list.Transponders.AddRange(source.Transponders.Select(Tp));
@@ -65,7 +68,7 @@ public sealed class ImportedList
     public ImportedList At(int? position)
     {
         if (position is null) return this;
-        var list = new ImportedList { Format = Format };
+        var list = new ImportedList { Format = Format, GroupsAreSatelliteIndexes = GroupsAreSatelliteIndexes };
         foreach (var (k, v) in PositionNames) list.PositionNames[k] = v;
         list.Transponders.AddRange(Transponders.Where(t => t.Position == position));
         list.Services.AddRange(Services.Where(s => s.Transponder.Position == position));

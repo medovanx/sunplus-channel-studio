@@ -9,6 +9,7 @@ public static class Samples
     public static byte[] Database(int channelSize = 92)
     {
         var sat = new byte[36];
+        sat[0] = 0x1e; // as the receiver stores Nilesat: Ku band, west
         "Nilesat"u8.CopyTo(sat.AsSpan(4));
         BinaryPrimitives.WriteUInt32LittleEndian(sat.AsSpan(24), 70);
         BinaryPrimitives.WriteUInt16LittleEndian(sat.AsSpan(28), 9750);

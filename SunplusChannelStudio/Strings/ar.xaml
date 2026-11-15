@@ -171,6 +171,16 @@
     <sys:String x:Key="Imp.Done">تم استيراد {0} تغيير. احفظ الملف للإبقاء عليها.</sys:String>
     <sys:String x:Key="Imp.CannotRead">تعذرت قراءة القائمة</sys:String>
     <sys:String x:Key="Imp.UnknownFormat">هذا الملف ليس قائمة قنوات يمكن للبرنامج قراءتها. استخدم ملف Enigma2 lamedb أو ملف ini من KingOfSat أو ملف dtv-scan-tables.</sys:String>
+    <sys:String x:Key="Imp.FromFile">من ملف...</sys:String>
+    <sys:String x:Key="Imp.FromFileTip">قائمة قنوات أو قاعدة قنوات أخرى موجودة على هذا الكمبيوتر</sys:String>
+    <sys:String x:Key="Imp.FromWeb">الترددات من الإنترنت</sys:String>
+    <sys:String x:Key="Imp.FromWebTip">يحمّل قوائم dtv-scan-tables المفتوحة لأقمارك ويعرض التغييرات أولاً. الترددات فقط: التردد والاستقطاب ومعدل الترميز.</sys:String>
+    <sys:String x:Key="Imp.OpenKingOfSat">قائمة KingOfSat</sys:String>
+    <sys:String x:Key="Imp.OpenKingOfSatTip">يفتح KingOfSat في المتصفح لتحميل قائمة الترددات لقمرك، ثم يتيح لك استيرادها</sys:String>
+    <sys:String x:Key="Imp.Downloading">جارٍ تحميل قوائم الترددات...</sys:String>
+    <sys:String x:Key="Imp.WebNone">لا توجد قائمة ترددات مفتوحة لموقع قمرك.</sys:String>
+    <sys:String x:Key="Imp.WebFailed">تعذر تحميل قوائم الترددات: {0}</sys:String>
+    <sys:String x:Key="Imp.KingOfSatNext">المتصفح يحمّل قائمة KingOfSat لقمرك. عند انتهاء التحميل اضغط موافق واختر الملف من مجلد التنزيلات.</sys:String>
     <sys:String x:Key="Imp.NoTransponders">الملف لا يحتوي على باقات أقمار صناعية.</sys:String>
     <sys:String x:Key="Imp.Col.Change">التغيير</sys:String>
     <sys:String x:Key="Imp.Col.Name">الاسم</sys:String>

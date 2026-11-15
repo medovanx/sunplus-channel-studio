@@ -46,19 +46,19 @@ public partial class ImportWindow : Window
         Replan();
     }
 
-    /// <summary>Starts on the file position matching the first satellite's angle, when there is one.</summary>
+    /// <summary>Starts on the file position matching the first satellite, when there is one.</summary>
     int PreferredPosition(IReadOnlyList<int> positions)
     {
-        if (_list.PositionNames.Count > 0 && _db.Satellites.Count > 0)
+        if (_db.Satellites.Count == 0) return 0;
+        var ours = _db.Satellites[0];
+        var all = positions.ToList();
+        if (_list.GroupsAreSatelliteIndexes)
         {
-            // Merging databases: start on the source satellite with the same name or position as ours.
-            var ours = _db.Satellites[0];
-            int byName = positions.ToList().FindIndex(p => _list.PositionNames.GetValueOrDefault(p) == ours.Name);
-            return Math.Max(byName, 0);
+            // Merging databases: start on the source satellite with the same name as ours.
+            return Math.Max(all.FindIndex(p => _list.PositionNames.GetValueOrDefault(p) == ours.Name), 0);
         }
-        int angle = _db.Satellites.Count > 0 ? (int)_db.Satellites[0].Position : 0;
-        int i = positions.ToList().FindIndex(p => Math.Abs(p) == angle);
-        return Math.Max(i, 0);
+        int exact = all.FindIndex(p => p == ours.SignedPosition);
+        return Math.Max(exact >= 0 ? exact : all.FindIndex(p => Math.Abs(p) == ours.Position), 0);
     }
 
     void BuildColumns()

@@ -169,6 +169,16 @@
     <sys:String x:Key="Imp.Done">Imported {0} changes. Save to keep them.</sys:String>
     <sys:String x:Key="Imp.CannotRead">Cannot read the list</sys:String>
     <sys:String x:Key="Imp.UnknownFormat">This is not a channel list the app can read. Use an Enigma2 lamedb, a KingOfSat .ini download or a dtv-scan-tables file.</sys:String>
+    <sys:String x:Key="Imp.FromFile">From a file...</sys:String>
+    <sys:String x:Key="Imp.FromFileTip">A channel list or another channel database you have on this computer</sys:String>
+    <sys:String x:Key="Imp.FromWeb">Transponders from the web</sys:String>
+    <sys:String x:Key="Imp.FromWebTip">Downloads the open dtv-scan-tables lists for your satellites and shows the changes first. Transponders only: frequency, polarization and symbol rate.</sys:String>
+    <sys:String x:Key="Imp.OpenKingOfSat">Get the KingOfSat list</sys:String>
+    <sys:String x:Key="Imp.OpenKingOfSatTip">Opens KingOfSat in your browser to download the transponder list for your satellite, then lets you import it</sys:String>
+    <sys:String x:Key="Imp.Downloading">Downloading transponder lists...</sys:String>
+    <sys:String x:Key="Imp.WebNone">There is no open transponder list for your satellite position.</sys:String>
+    <sys:String x:Key="Imp.WebFailed">The transponder lists could not be downloaded: {0}</sys:String>
+    <sys:String x:Key="Imp.KingOfSatNext">Your browser is downloading the KingOfSat list for your satellite. When it has finished, press OK and pick the file from your Downloads folder.</sys:String>
     <sys:String x:Key="Imp.NoTransponders">The file has no satellite transponders.</sys:String>
     <sys:String x:Key="Imp.Col.Change">Change</sys:String>
     <sys:String x:Key="Imp.Col.Name">Name</sys:String>

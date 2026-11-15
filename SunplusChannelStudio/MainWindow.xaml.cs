@@ -1,9 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -82,18 +84,20 @@ public partial class MainWindow : Window
         ChannelRow.MoveRequested += (row, target) => Dispatcher.BeginInvoke(() => MoveToNumber(row, target));
         Loaded += (_, _) =>
         {
-            // SunplusChannelStudio.exe [database.bin] [--import list]
+            // SunplusChannelStudio.exe [database.bin] [--import list | --import-web] [--sort] [--cleanup] [--watch name]
             var args = Environment.GetCommandLineArgs().Skip(1).ToList();
             int imp = args.IndexOf("--import");
             string? list = imp >= 0 && imp + 1 < args.Count ? args[imp + 1] : null;
             if (imp >= 0) args.RemoveRange(imp, Math.Min(2, args.Count - imp));
             bool cleanup = args.Remove("--cleanup");
             bool sort = args.Remove("--sort");
+            bool importWeb = args.Remove("--import-web");
             int w = args.IndexOf("--watch");
             string? watch = w >= 0 && w + 1 < args.Count ? args[w + 1] : null;
             if (w >= 0) args.RemoveRange(w, Math.Min(2, args.Count - w));
             if (args.FirstOrDefault() is { } db && File.Exists(db)) OpenFile(db);
             if (list is not null && File.Exists(list) && _db is not null) ImportFile(list);
+            if (importWeb && _db is not null) ImportFromWeb();
             if (watch is not null && _tv.FirstOrDefault(r => r.Name.Contains(watch, StringComparison.OrdinalIgnoreCase)) is { } row)
             {
                 TvGrid.SelectedItem = row;
@@ -262,12 +266,85 @@ public partial class MainWindow : Window
         _db.Type = SelectedFormat;
     }
 
+    /// <summary>Import offers a file, the open transponder lists on the web, or KingOfSat's download page.</summary>
     void Import_Click(object sender, RoutedEventArgs e)
     {
         if (_db is null) return;
+        var menu = new ContextMenu { PlacementTarget = ImportButton, Placement = PlacementMode.Bottom, FlowDirection = Loc.Flow };
+        MenuItem Item(string key, string glyph, RoutedEventHandler click)
+        {
+            var item = new MenuItem { Header = Loc.Get(key), ToolTip = Loc.Get(key + "Tip"),
+                Icon = new TextBlock { Text = glyph, FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets") } };
+            item.Click += click;
+            return item;
+        }
+        menu.Items.Add(Item("Imp.FromFile", "", (_, _) => ImportFromFile()));
+        menu.Items.Add(Item("Imp.FromWeb", "", (_, _) => ImportFromWeb()));
+        menu.Items.Add(Item("Imp.OpenKingOfSat", "", (_, _) => OpenKingOfSat()));
+        menu.IsOpen = true;
+    }
+
+    void ImportFromFile(string? folder = null)
+    {
         var dialog = new OpenFileDialog { Filter = Loc.Get("Imp.Filter"), Title = Loc.Get("Imp.Title") };
+        if (folder is not null) dialog.InitialDirectory = folder;
         if (dialog.ShowDialog(this) == true) ImportFile(dialog.FileName);
     }
+
+    /// <summary>Downloads the dtv-scan-tables transponder lists for the database's satellites and opens the usual preview.</summary>
+    async void ImportFromWeb()
+    {
+        if (_db is null) return;
+        var positions = _db.Satellites.Select(s => s.SignedPosition).Distinct().ToList();
+        ImportButton.IsEnabled = false;
+        Cursor = Cursors.Wait;
+        StatusLabel.Text = Loc.Get("Imp.Downloading");
+        ImportedList list;
+        try
+        {
+            using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(1) };
+            http.DefaultRequestHeaders.UserAgent.ParseAdd("SunplusChannelStudio"); // GitHub's API requires one
+            list = await ScanTableSource.FetchAsync(http, positions);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException or ImportFormatException)
+        {
+            UpdateStatus();
+            Say(ex is ImportFormatException ? Loc.Get("Imp.WebNone") : Loc.Format("Imp.WebFailed", ex.Message), "Imp.CannotRead",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+        finally
+        {
+            ImportButton.IsEnabled = _db is not null;
+            Cursor = null;
+        }
+        UpdateStatus();
+        ImportList(list);
+    }
+
+    /// <summary>
+    /// KingOfSat's data may not be downloaded by programs, so the browser fetches its file for the first
+    /// satellite and the file picker then opens in Downloads, ready to import it.
+    /// </summary>
+    void OpenKingOfSat()
+    {
+        if (_db is not { Satellites.Count: > 0 } db) return;
+        try { Process.Start(new ProcessStartInfo(ScanTableSource.KingOfSatDownload(db.Satellites[0].SignedPosition)) { UseShellExecute = true }); }
+        catch (System.ComponentModel.Win32Exception ex) { Say(ex.Message, "Imp.OpenKingOfSat", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+        if (Say(Loc.Get("Imp.KingOfSatNext"), "Imp.OpenKingOfSat", MessageBoxButton.OKCancel, MessageBoxImage.Information) == MessageBoxResult.OK)
+            ImportFromFile(DownloadsFolder());
+    }
+
+    static string? DownloadsFolder()
+    {
+        // The Downloads known folder; SHGetKnownFolderPath avoids guessing when the user has moved it.
+        var id = new Guid("374DE290-123F-4565-9164-39C4925E467B");
+        return SHGetKnownFolderPath(id, 0, IntPtr.Zero, out var path) == 0 ? path : null;
+    }
+
+    [System.Runtime.InteropServices.DllImport("shell32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+    static extern int SHGetKnownFolderPath([System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPStruct)] Guid id,
+        uint flags, IntPtr token, [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)] out string path);
 
     void Cleanup_Click(object sender, RoutedEventArgs e)
     {
@@ -510,7 +587,12 @@ public partial class MainWindow : Window
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
+        ImportList(list);
+    }
 
+    void ImportList(ImportedList list)
+    {
+        if (_db is null) return;
         SyncToDatabase();
         var window = new ImportWindow(_db, list) { Owner = this };
         if (window.ShowDialog() != true || window.Applied == 0) return;

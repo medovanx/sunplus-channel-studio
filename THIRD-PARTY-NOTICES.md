@@ -8,6 +8,10 @@ Video playback uses [libVLC](https://www.videolan.org/vlc/libvlc.html) from the 
 
 Live stream links are read from the [iptv-org](https://github.com/iptv-org/iptv) API, released into the public domain (CC0). The links point to third-party streams; this program does not host, record or redistribute them.
 
+## dtv-scan-tables
+
+**Transponders from the web** downloads transponder lists from the [tvheadend dtv-scan-tables](https://github.com/tvheadend/dtv-scan-tables) project (GPL-2.0) when you ask for it. The lists are read at that moment and are not part of this program. **Get the KingOfSat list** only opens [KingOfSat](https://en.kingofsat.net) in your browser; the program does not download from it.
+
 ## flag-icons
 
 The language flags in `SunplusChannelStudio/Assets/Languages` are rendered from [flag-icons](https://github.com/lipis/flag-icons).

@@ -29,9 +29,9 @@ The layout was recovered from the original VB6 editor's load and save routines a
 
 | Offset | Type | Meaning |
 | --- | --- | --- |
-| 0 | byte[4] | Flags, kept as read |
+| 0 | byte[4] | Flags, kept as read. In byte 0, bit 0x10 marks a western position and the low bits give the band (0xd C, 0xe Ku), checked against all 40 satellites of the factory list |
 | 4 | text[20] | Name |
-| 24 | u32 | Orbital position in tenths of a degree (70 is 7.0) |
+| 24 | u32 | Orbital position in tenths of a degree without direction (70 is 7.0; byte 0 says east or west) |
 | 28 | u16 | LNB low oscillator, MHz |
 | 30 | u16 | LNB high oscillator, MHz |
 | 32 | u32 | Options, kept as read |

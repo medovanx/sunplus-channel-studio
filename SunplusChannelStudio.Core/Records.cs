@@ -34,8 +34,17 @@ public sealed class Satellite(byte[] raw) : RawRecord(raw)
     public string Name => Text(4, NameSize);
     public bool TrySetName(string value) => Text(4, NameSize, value);
 
-    /// <summary>Orbital position in tenths of a degree.</summary>
+    /// <summary>Orbital position in tenths of a degree, without direction (see <see cref="West"/>).</summary>
     public uint Position => U32(24);
+
+    /// <summary>
+    /// Bit 0x10 of the first byte marks a western position. Checked against all 40 satellites of the
+    /// receiver's factory list: every western one has it and every eastern one does not.
+    /// </summary>
+    public bool West => (Raw[0] & 0x10) != 0;
+
+    /// <summary>Position in tenths of a degree, east positive and west negative, as channel lists use.</summary>
+    public int SignedPosition => West ? -(int)Position : (int)Position;
     public ushort LnbLow => U16(28);
     public ushort LnbHigh => U16(30);
 }

@@ -176,4 +176,32 @@ public class ImportTests
         ImportPlanner.Apply(db, 0, changes);
         Assert.Equal(channels, db.TvChannels.Count + db.RadioChannels.Count);
     }
+
+    [Fact]
+    public void Doubtful_symbol_rates_are_not_ticked()
+    {
+        // The sample's 11766 H carries channels. One source line moves it to 30000; another source pair
+        // disagrees about 12000 V, as an old and a new satellite file at one position can.
+        var list = new ImportedList { Format = "test" };
+        list.Transponders.AddRange([
+            new ImportedTransponder(11766, Polarity.Horizontal, 30000),
+            new ImportedTransponder(12000, Polarity.Vertical, 27500),
+            new ImportedTransponder(12001, Polarity.Vertical, 5000),
+            new ImportedTransponder(12500, Polarity.Vertical, 27500),
+        ]);
+        var changes = ImportPlanner.Plan(Db(), 0, list);
+
+        var rate = Assert.Single(changes, c => c.Kind == ChangeKind.SymbolRate);
+        Assert.False(rate.Selected); // channels already play at the stored rate
+        Assert.False(Assert.Single(changes, c => c.Name.StartsWith("1200")).Selected); // disputed
+        Assert.True(Assert.Single(changes, c => c.Name == "12500 V").Selected);
+    }
+
+    [Fact]
+    public void A_disputed_transponder_gets_no_symbol_rate_change()
+    {
+        var list = new ImportedList { Format = "test" };
+        list.Transponders.AddRange([new ImportedTransponder(11766, Polarity.Horizontal, 27500), new ImportedTransponder(11767, Polarity.Horizontal, 5000)]);
+        Assert.DoesNotContain(ImportPlanner.Plan(Db(), 0, list), c => c.Kind == ChangeKind.SymbolRate);
+    }
 }
