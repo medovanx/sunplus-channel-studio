@@ -78,7 +78,7 @@ public partial class MainWindow : Window
 
     static void BuildChannelColumns(DataGrid grid)
     {
-        DataGridTextColumn Text(string header, string path, double width, bool readOnly = true, bool right = false, bool latin = false)
+        DataGridTextColumn Text(string header, string path, double width, bool readOnly = true, bool right = false)
         {
             var binding = new Binding(path);
             if (!readOnly)
@@ -93,29 +93,35 @@ public partial class MainWindow : Window
                 IsReadOnly = readOnly,
                 Width = width > 0 ? new DataGridLength(width) : new DataGridLength(1, DataGridLengthUnitType.Star),
             };
-            col.ElementStyle = CellStyle(right, latin);
+            col.ElementStyle = CellStyle(right);
+            if (right) NumericColumns.Add(col);
             return col;
         }
 
-        grid.Columns.Add(Text("Col.Number", nameof(ChannelRow.Number), 70, right: true));
-        grid.Columns.Add(Text("Col.Name", nameof(ChannelRow.Name), 0, readOnly: false));
-        grid.Columns.Add(Text("Col.Type", nameof(ChannelRow.Definition), 60));
-        grid.Columns.Add(Text("Col.Favorite", nameof(ChannelRow.Favorite), 100));
-        grid.Columns.Add(Text("Col.Transponder", nameof(ChannelRow.Frequency), 140, latin: true));
-        grid.Columns.Add(Text("Col.Satellite", nameof(ChannelRow.Satellite), 130));
-        grid.Columns.Add(Text("Col.Sid", nameof(ChannelRow.ServiceId), 70, right: true));
-        grid.Columns.Add(Text("Col.Video", nameof(ChannelRow.VideoPid), 84, right: true));
-        grid.Columns.Add(Text("Col.AudioA", nameof(ChannelRow.AudioPidA), 76, right: true));
-        grid.Columns.Add(Text("Col.AudioB", nameof(ChannelRow.AudioPidB), 76, right: true));
-        grid.Columns.Add(Text("Col.Pcr", nameof(ChannelRow.PcrPid), 70, right: true));
-        grid.Columns.Add(Text("Col.Pmt", nameof(ChannelRow.PmtPid), 70, right: true));
+        grid.Columns.Add(Text("Col.Number", nameof(ChannelRow.Number), 56, right: true));
+        var name = Text("Col.Name", nameof(ChannelRow.Name), 0, readOnly: false);
+        name.MinWidth = 200;
+        grid.Columns.Add(name);
+        grid.Columns.Add(Text("Col.Type", nameof(ChannelRow.Definition), 56));
+        grid.Columns.Add(Text("Col.Favorite", nameof(ChannelRow.Favorite), 92));
+        grid.Columns.Add(Text("Col.Frequency", nameof(ChannelRow.Frequency), 92, right: true));
+        grid.Columns.Add(Text("Col.Polarization", nameof(ChannelRow.Polarization), 98));
+        grid.Columns.Add(Text("Col.SymbolRate", nameof(ChannelRow.SymbolRate), 104, right: true));
+        grid.Columns.Add(Text("Col.Satellite", nameof(ChannelRow.Satellite), 110));
+        grid.Columns.Add(Text("Col.Sid", nameof(ChannelRow.ServiceId), 64, right: true));
+        grid.Columns.Add(Text("Col.Video", nameof(ChannelRow.VideoPid), 82, right: true));
+        grid.Columns.Add(Text("Col.AudioA", nameof(ChannelRow.AudioPidA), 74, right: true));
+        grid.Columns.Add(Text("Col.AudioB", nameof(ChannelRow.AudioPidB), 74, right: true));
+        grid.Columns.Add(Text("Col.Pcr", nameof(ChannelRow.PcrPid), 62, right: true));
+        grid.Columns.Add(Text("Col.Pmt", nameof(ChannelRow.PmtPid), 62, right: true));
     }
 
-    /// <summary>Cell text style; <paramref name="latin"/> keeps Latin-and-number text in order inside the Arabic layout.</summary>
-    static Style CellStyle(bool right, bool latin = false)
+    /// <summary>Number columns align to the end of the cell in left-to-right languages only.</summary>
+    static readonly HashSet<DataGridColumn> NumericColumns = [];
+
+    static Style CellStyle(bool right)
     {
         var style = new Style(typeof(TextBlock));
-        if (latin) style.Setters.Add(new Setter(FlowDirectionProperty, FlowDirection.LeftToRight));
         style.Setters.Add(new Setter(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center));
         style.Setters.Add(new Setter(TextBlock.MarginProperty, new Thickness(8, 0, 12, 0)));
         style.Setters.Add(new Setter(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis));
@@ -646,10 +652,26 @@ public partial class MainWindow : Window
     {
         FlowDirection = Loc.Flow;
         ShowCurrentLanguage();
-        foreach (var (col, key) in _headerKeys) col.Header = Loc.Get(key);
+        foreach (var col in NumericColumns.Where(_headerKeys.ContainsKey))
+            ((DataGridTextColumn)col).ElementStyle = CellStyle(right: !Loc.IsRightToLeft);
+        foreach (var (col, key) in _headerKeys)
+        {
+            col.Header = Loc.Get(key);
+            col.HeaderStyle = HeaderStyle(Loc.Get(key.Replace("Col.", "ColTip.")));
+        }
         foreach (var r in _tv.Concat(_radio)) r.Refresh();
         foreach (var r in (TpGrid.ItemsSource as IEnumerable<Row> ?? []).Concat(SatGrid.ItemsSource as IEnumerable<Row> ?? [])) r.Refresh();
         UpdateChrome();
+    }
+
+    /// <summary>Column header style carrying an explanation as its tooltip.</summary>
+    Style HeaderStyle(string tip)
+    {
+        var style = new Style(typeof(System.Windows.Controls.Primitives.DataGridColumnHeader),
+            (Style)FindResource(typeof(System.Windows.Controls.Primitives.DataGridColumnHeader)));
+        style.Setters.Add(new Setter(ToolTipProperty, tip));
+        style.Setters.Add(new Setter(ToolTipService.InitialShowDelayProperty, 300));
+        return style;
     }
 
     MessageBoxResult Say(string text, string titleKey, MessageBoxButton buttons, MessageBoxImage icon) =>

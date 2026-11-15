@@ -55,7 +55,6 @@
     <sys:String x:Key="Col.SatName">اسم القمر</sys:String>
     <sys:String x:Key="Col.Type">النوع</sys:String>
     <sys:String x:Key="Col.Favorite">المفضلة</sys:String>
-    <sys:String x:Key="Col.Transponder">الباقة</sys:String>
     <sys:String x:Key="Col.Satellite">القمر</sys:String>
     <sys:String x:Key="Col.Sid">SID</sys:String>
     <sys:String x:Key="Col.Video">Video PID</sys:String>
@@ -63,13 +62,35 @@
     <sys:String x:Key="Col.AudioB">Audio B</sys:String>
     <sys:String x:Key="Col.Pcr">PCR</sys:String>
     <sys:String x:Key="Col.Pmt">PMT</sys:String>
-    <sys:String x:Key="Col.Frequency">التردد (MHz)</sys:String>
+    <sys:String x:Key="Col.Frequency">التردد</sys:String>
     <sys:String x:Key="Col.Polarization">القطبية</sys:String>
-    <sys:String x:Key="Col.SymbolRate">معدل الترميز (kS/s)</sys:String>
+    <sys:String x:Key="Col.SymbolRate">معدل الترميز</sys:String>
     <sys:String x:Key="Col.Channels">القنوات</sys:String>
     <sys:String x:Key="Col.Position">الموقع</sys:String>
     <sys:String x:Key="Col.Lnb">LNB</sys:String>
     <sys:String x:Key="Col.Transponders">الباقات</sys:String>
+
+    <!-- Column explanations, shown when hovering a header -->
+    <sys:String x:Key="ColTip.Number">ترتيب القناة في قائمة الجهاز.</sys:String>
+    <sys:String x:Key="ColTip.Name">الاسم الذي يظهر على الجهاز. اضغط F2 لإعادة التسمية.</sys:String>
+    <sys:String x:Key="ColTip.Type">SD جودة عادية و HD جودة عالية. يظهر TR لأي قيمة أخرى يخزنها الجهاز.</sys:String>
+    <sys:String x:Key="ColTip.Favorite">مجموعة المفضلة التي تنتمي إليها القناة.</sys:String>
+    <sys:String x:Key="ColTip.Frequency">تردد الباقة بالميغاهرتز.</sys:String>
+    <sys:String x:Key="ColTip.Polarization">اتجاه إرسال الإشارة عموديًا أو أفقيًا، ويبدّل رأس الطبق (LNB) بينهما.</sys:String>
+    <sys:String x:Key="ColTip.SymbolRate">سرعة إرسال البيانات في الباقة بآلاف الرموز في الثانية.</sys:String>
+    <sys:String x:Key="ColTip.Satellite">القمر الذي تُستقبل منه القناة.</sys:String>
+    <sys:String x:Key="ColTip.Sid">رقم الخدمة: الرقم الذي يميز هذه القناة داخل الباقة.</sys:String>
+    <sys:String x:Key="ColTip.Video">رقم حزمة بث الصورة (PID).</sys:String>
+    <sys:String x:Key="ColTip.AudioA">رقم حزمة الصوت الأساسي (PID).</sys:String>
+    <sys:String x:Key="ColTip.AudioB">رقم حزمة صوت ثانٍ، غالبًا بلغة أخرى. يكون فارغًا إن لم يوجد.</sys:String>
+    <sys:String x:Key="ColTip.Pcr">مرجع ساعة البرنامج: إشارة التوقيت التي تحافظ على تزامن الصورة والصوت. غالبًا نفس رقم الصورة.</sys:String>
+    <sys:String x:Key="ColTip.Pmt">جدول خريطة البرنامج: الفهرس الذي يخبر الجهاز بمكونات بث هذه القناة.</sys:String>
+    <sys:String x:Key="ColTip.TpName">اسم الباقة، وغالبًا اسم الجهة التي تستأجرها.</sys:String>
+    <sys:String x:Key="ColTip.SatName">اسم القمر كما يظهر على الجهاز.</sys:String>
+    <sys:String x:Key="ColTip.Channels">عدد القنوات في هذه القائمة التي تستخدمها.</sys:String>
+    <sys:String x:Key="ColTip.Position">موقع القمر في المدار بالدرجات.</sys:String>
+    <sys:String x:Key="ColTip.Lnb">ترددات المذبذب المحلي في رأس الطبق (LNB) المستخدمة لاستقبال هذا القمر.</sys:String>
+    <sys:String x:Key="ColTip.Transponders">عدد الباقات في هذه القائمة التابعة لهذا القمر.</sys:String>
 
     <!-- Values -->
     <sys:String x:Key="Pol.V">عمودي</sys:String>

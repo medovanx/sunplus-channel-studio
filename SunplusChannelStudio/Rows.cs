@@ -72,7 +72,9 @@ public sealed class ChannelRow(Channel channel, ChannelDatabase db) : Row
     public string Definition => Channel.Definition switch { 0 => "SD", 1 => "HD", _ => "TR" };
 
     Transponder? Tp => db.TransponderOf(Channel);
-    public string Frequency => Tp is { } tp ? $"{tp.Frequency} {(tp.Polarization == 0 ? "V" : "H")} {tp.SymbolRate}" : "?";
+    public string Frequency => Tp?.Frequency.ToString() ?? "?";
+    public string Polarization => Tp is { } tp ? Loc.Get(tp.Polarization == 0 ? "Pol.V" : "Pol.H") : "?";
+    public string SymbolRate => Tp?.SymbolRate.ToString() ?? "?";
     public string Satellite => Tp is { } tp ? db.SatelliteOf(tp)?.Name ?? "?" : "?";
 
     public ushort ServiceId => Channel.ServiceId;

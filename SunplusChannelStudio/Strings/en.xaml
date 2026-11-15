@@ -53,7 +53,6 @@
     <sys:String x:Key="Col.SatName">Name</sys:String>
     <sys:String x:Key="Col.Type">Type</sys:String>
     <sys:String x:Key="Col.Favorite">Favourite</sys:String>
-    <sys:String x:Key="Col.Transponder">Transponder</sys:String>
     <sys:String x:Key="Col.Satellite">Satellite</sys:String>
     <sys:String x:Key="Col.Sid">SID</sys:String>
     <sys:String x:Key="Col.Video">Video PID</sys:String>
@@ -61,13 +60,35 @@
     <sys:String x:Key="Col.AudioB">Audio B</sys:String>
     <sys:String x:Key="Col.Pcr">PCR</sys:String>
     <sys:String x:Key="Col.Pmt">PMT</sys:String>
-    <sys:String x:Key="Col.Frequency">Frequency (MHz)</sys:String>
+    <sys:String x:Key="Col.Frequency">Frequency</sys:String>
     <sys:String x:Key="Col.Polarization">Polarization</sys:String>
-    <sys:String x:Key="Col.SymbolRate">Symbol rate (kS/s)</sys:String>
+    <sys:String x:Key="Col.SymbolRate">Symbol rate</sys:String>
     <sys:String x:Key="Col.Channels">Channels</sys:String>
     <sys:String x:Key="Col.Position">Position</sys:String>
     <sys:String x:Key="Col.Lnb">LNB</sys:String>
     <sys:String x:Key="Col.Transponders">Transponders</sys:String>
+
+    <!-- Column explanations, shown when hovering a header -->
+    <sys:String x:Key="ColTip.Number">Position of the channel in the receiver list.</sys:String>
+    <sys:String x:Key="ColTip.Name">Name shown on the receiver. Press F2 to rename.</sys:String>
+    <sys:String x:Key="ColTip.Type">SD is standard definition and HD is high definition. TR is shown for any other value the receiver stores.</sys:String>
+    <sys:String x:Key="ColTip.Favorite">The favourite group the channel belongs to.</sys:String>
+    <sys:String x:Key="ColTip.Frequency">Transponder frequency, in MHz.</sys:String>
+    <sys:String x:Key="ColTip.Polarization">Whether the signal is sent vertically or horizontally. The dish LNB switches between them.</sys:String>
+    <sys:String x:Key="ColTip.SymbolRate">How fast the transponder sends data, in thousands of symbols per second.</sys:String>
+    <sys:String x:Key="ColTip.Satellite">The satellite the channel is received from.</sys:String>
+    <sys:String x:Key="ColTip.Sid">Service ID: the number that identifies this channel inside its transponder.</sys:String>
+    <sys:String x:Key="ColTip.Video">Packet ID of the video stream.</sys:String>
+    <sys:String x:Key="ColTip.AudioA">Packet ID of the main audio track.</sys:String>
+    <sys:String x:Key="ColTip.AudioB">Packet ID of a second audio track, often another language. Empty when there is none.</sys:String>
+    <sys:String x:Key="ColTip.Pcr">Program Clock Reference: the timing signal that keeps picture and sound in sync. Usually the same as the video PID.</sys:String>
+    <sys:String x:Key="ColTip.Pmt">Program Map Table: the index that tells the receiver which streams make up this channel.</sys:String>
+    <sys:String x:Key="ColTip.TpName">Name of the transponder, often the broadcaster that rents it.</sys:String>
+    <sys:String x:Key="ColTip.SatName">Name of the satellite shown on the receiver.</sys:String>
+    <sys:String x:Key="ColTip.Channels">How many channels in this list use it.</sys:String>
+    <sys:String x:Key="ColTip.Position">Orbital position of the satellite in degrees.</sys:String>
+    <sys:String x:Key="ColTip.Lnb">Local oscillator frequencies of the dish LNB used to tune this satellite.</sys:String>
+    <sys:String x:Key="ColTip.Transponders">How many transponders in this list belong to the satellite.</sys:String>
 
     <!-- Values -->
     <sys:String x:Key="Pol.V">Vertical</sys:String>
