@@ -59,12 +59,13 @@ The layout was recovered from the original VB6 editor's load and save routines a
 | 46 | u16 | Service id |
 | 48 | u16 | Transport stream id |
 | 50 | u16 | Original network id |
-| 52 | u16 | Favourite group |
-| 54 | u16 | Definition: 0 SD, 1 HD, other values shown as TR |
+| 52 | u8 | Favourite group |
+| 53 | u8 | Service flags: 0x10 scrambled, others kept as read |
+| 54 | u16 | Definition: bit 0 set for H.264 (HD) video; other bits are flags |
 | 56 | u16 | Video PID |
-| 60 | u32 | Video stream type |
+| 60 | u32 | Video stream type (2 MPEG-2, 27 H.264, 36 HEVC) |
 | 64 | u16 | Audio PID A |
-| 68 | u32 | Audio A stream type |
+| 68 | u32 | Audio A stream type (3 or 4 MPEG, 15 AAC, 129 AC-3) |
 | 72 | u16 | Audio PID B |
 | 76 | u32 | Audio B stream type |
 | 80 | u16 | PCR PID |
@@ -88,6 +89,10 @@ PIDs are 13 bits. The receiver keeps flags in the top three bits of the PID word
 | 0x80 | Financial |
 
 Any other value is shown as no group.
+
+### Scrambled flag
+
+The receiver sets bit `0x10` of byte 53 when its scan finds a scrambled (pay) service. In the sample lists every OSN and pay beIN channel has it, while free channels such as Al Jazeera, MBC and Nilesat state channels never do. Setting a favourite group writes byte 52 only, so the flag survives.
 
 ### Database types
 

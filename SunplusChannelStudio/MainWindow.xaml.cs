@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
 using SunplusChannelStudio.Core;
+using SunplusChannelStudio.Core.Import;
 
 namespace SunplusChannelStudio;
 
@@ -68,8 +69,15 @@ public partial class MainWindow : Window
         Row.Edited += MarkDirty;
         Loaded += (_, _) =>
         {
-            var arg = Environment.GetCommandLineArgs().Skip(1).FirstOrDefault();
-            if (arg is not null && File.Exists(arg)) OpenFile(arg);
+            // SunplusChannelStudio.exe [database.bin] [--import list]
+            var args = Environment.GetCommandLineArgs().Skip(1).ToList();
+            int imp = args.IndexOf("--import");
+            string? list = imp >= 0 && imp + 1 < args.Count ? args[imp + 1] : null;
+            if (imp >= 0) args.RemoveRange(imp, Math.Min(2, args.Count - imp));
+            bool cleanup = args.Remove("--cleanup");
+            if (args.FirstOrDefault() is { } db && File.Exists(db)) OpenFile(db);
+            if (list is not null && File.Exists(list) && _db is not null) ImportFile(list);
+            if (cleanup && _db is not null) Cleanup_Click(this, new RoutedEventArgs());
         };
         UpdateChrome();
     }
@@ -91,7 +99,8 @@ public partial class MainWindow : Window
                 Header = header,
                 Binding = binding,
                 IsReadOnly = readOnly,
-                Width = width > 0 ? new DataGridLength(width) : new DataGridLength(1, DataGridLengthUnitType.Star),
+                // 0 = the stretching column; anything else sizes to its header and content.
+                Width = width > 0 ? DataGridLength.Auto : new DataGridLength(1, DataGridLengthUnitType.Star),
             };
             col.ElementStyle = CellStyle(right);
             if (right) NumericColumns.Add(col);
@@ -102,7 +111,8 @@ public partial class MainWindow : Window
         var name = Text("Col.Name", nameof(ChannelRow.Name), 0, readOnly: false);
         name.MinWidth = 200;
         grid.Columns.Add(name);
-        grid.Columns.Add(Text("Col.Type", nameof(ChannelRow.Definition), 56));
+        grid.Columns.Add(Text("Col.Quality", nameof(ChannelRow.Quality), 70));
+        grid.Columns.Add(Text("Col.Access", nameof(ChannelRow.Access), 92));
         grid.Columns.Add(Text("Col.Favorite", nameof(ChannelRow.Favorite), 92));
         grid.Columns.Add(Text("Col.Frequency", nameof(ChannelRow.Frequency), 92, right: true));
         grid.Columns.Add(Text("Col.Polarization", nameof(ChannelRow.Polarization), 98));
@@ -196,15 +206,79 @@ public partial class MainWindow : Window
         if (dialog.ShowDialog(this) == true && dialog.FileName is { Length: > 0 } file) SaveTo(file);
     }
 
-    bool SaveTo(string path)
+    /// <summary>Copies the on-screen order and edits back into the database lists.</summary>
+    void SyncToDatabase()
     {
-        if (_db is null) return false;
         CommitEdits();
-        _db.TvChannels.Clear();
+        _db!.TvChannels.Clear();
         _db.TvChannels.AddRange(_tv.Select(r => r.Channel));
         _db.RadioChannels.Clear();
         _db.RadioChannels.AddRange(_radio.Select(r => r.Channel));
         _db.Type = SelectedFormat;
+    }
+
+    void Import_Click(object sender, RoutedEventArgs e)
+    {
+        if (_db is null) return;
+        var dialog = new OpenFileDialog { Filter = Loc.Get("Imp.Filter"), Title = Loc.Get("Imp.Title") };
+        if (dialog.ShowDialog(this) == true) ImportFile(dialog.FileName);
+    }
+
+    void Cleanup_Click(object sender, RoutedEventArgs e)
+    {
+        if (_db is null) return;
+        SyncToDatabase();
+        var window = new CleanupWindow(_db) { Owner = this };
+        if (window.ShowDialog() != true || window.Removed == 0) return;
+        _loading = true;
+        Fill(_tv, _db.TvChannels);
+        Fill(_radio, _db.RadioChannels);
+        FillTransponders();
+        _loading = false;
+        MarkDirty();
+        StatusLabel.Text = Loc.Format("Cln.Done", window.Removed);
+    }
+
+    static bool IsDatabase(string path)
+    {
+        try
+        {
+            using var f = File.OpenRead(path);
+            var magic = new byte[4];
+            return f.Read(magic) == 4 && magic.AsSpan().SequenceEqual("db15"u8);
+        }
+        catch (IOException) { return false; }
+    }
+
+    void ImportFile(string path)
+    {
+        if (_db is null) return;
+        ImportedList list;
+        try { list = ListReader.Read(path); }
+        catch (Exception ex) when (ex is ImportFormatException or IOException or UnauthorizedAccessException)
+        {
+            Say(ex is ImportFormatException f ? Loc.Get("Imp." + f.Problem) : ex.Message, "Imp.CannotRead",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        SyncToDatabase();
+        var window = new ImportWindow(_db, list) { Owner = this };
+        if (window.ShowDialog() != true || window.Applied == 0) return;
+
+        _loading = true;
+        Fill(_tv, _db.TvChannels);
+        Fill(_radio, _db.RadioChannels);
+        FillTransponders();
+        _loading = false;
+        MarkDirty();
+        StatusLabel.Text = Loc.Format("Imp.Done", window.Applied);
+    }
+
+    bool SaveTo(string path)
+    {
+        if (_db is null) return false;
+        SyncToDatabase();
         try
         {
             // Keep one copy of the file as it was before this session first overwrote it.
@@ -264,7 +338,10 @@ public partial class MainWindow : Window
 
     void Window_Drop(object sender, DragEventArgs e)
     {
-        if (e.Data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } files) OpenFile(files[0]);
+        if (e.Data.GetData(DataFormats.FileDrop) is not string[] { Length: > 0 } files) return;
+        // A database opens; any other file is read as a channel list to import.
+        if (IsDatabase(files[0]) || _db is null) OpenFile(files[0]);
+        else ImportFile(files[0]);
     }
 
     // ---------- Channel actions ----------
@@ -581,6 +658,8 @@ public partial class MainWindow : Window
         EmptyState.Visibility = open ? Visibility.Collapsed : Visibility.Visible;
         Editor.Visibility = open ? Visibility.Visible : Visibility.Collapsed;
         FormatBox.IsEnabled = open;
+        ImportButton.IsEnabled = open;
+        CleanupButton.IsEnabled = open;
         DirtyLabel.Visibility = _dirty ? Visibility.Visible : Visibility.Collapsed;
         var name = _path is null ? null : Path.GetFileName(_path);
         Title = name is null ? "Sunplus Channel Studio" : $"{name}{(_dirty ? " *" : "")} - Sunplus Channel Studio";

@@ -30,6 +30,9 @@ Sunplus Channel Studio is a fresh editor for the same files. It reads and writes
 - **Rename in place.** Press F2 or double-click a name. Arabic names are written in the receiver's own Arabic encoding.
 - **Favourite groups.** Put channels into All, News, Science, Sports, Movies, Kids, Music, Fashion or Financial.
 - **Move to any position.** Send a channel or a whole selection straight to number 1, or anywhere else.
+- **Import channel lists.** Update a satellite from an Enigma2 `lamedb`, a KingOfSat `.ini` download or a dtv-scan-tables file. You see every proposed change first: new transponders, symbol rate fixes, new channels and stale PIDs. Nothing is deleted, scrambled channels are left out unless you ask for them, and renames start unticked so your own names stay.
+- **Clean up.** Find scrambled (pay) channels, test and spare placeholders, channels with no picture or sound, and duplicates, review the list and remove what you do not want.
+- **Free or scrambled at a glance.** A column shows which channels the receiver marked as scrambled.
 - **Transponders and satellites.** Edit transponder names, frequencies, symbol rates and polarization, and rename satellites.
 - **All three database types.** Normal DK-OTP, Multistream V1 and Multistream V2 are detected automatically, and you can save to another type to convert a list.
 - **Safe saving.** The first save keeps a `.bak` copy of the original file, and files are written through a temporary file so a failed save never leaves a broken database.
@@ -48,6 +51,14 @@ Sunplus Channel Studio is a fresh editor for the same files. It reads and writes
     <td align="center">Transponder editor</td>
   </tr>
   <tr>
+    <td><img src="docs/screenshots/import.png" alt="Import preview" /></td>
+    <td><img src="docs/screenshots/cleanup.png" alt="Clean up" /></td>
+  </tr>
+  <tr>
+    <td align="center">Import a channel list, with a preview of every change</td>
+    <td align="center">Clean up scrambled, test and duplicate channels</td>
+  </tr>
+  <tr>
     <td><img src="docs/screenshots/radio.png" alt="Radio list" /></td>
     <td><img src="docs/screenshots/welcome.png" alt="Start screen" /></td>
   </tr>
@@ -57,14 +68,13 @@ Sunplus Channel Studio is a fresh editor for the same files. It reads and writes
   </tr>
 </table>
 
-## Getting started
+## Download
 
-### Requirements
+Get the latest version from the [Releases page](https://github.com/medovanx/sunplus-channel-studio/releases). Unzip it and run `SunplusChannelStudio.exe` on 64-bit Windows 10 or 11; nothing else needs to be installed.
 
-- Windows 10 or Windows 11
-- [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)
+## Building from source
 
-### Build and run
+Building needs the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
 
 ```bash
 git clone https://github.com/medovanx/sunplus-channel-studio.git
@@ -82,8 +92,9 @@ dotnet publish SunplusChannelStudio -c Release -r win-x64 --self-contained false
 
 1. Copy the channel database from your receiver (for example over USB) to your computer.
 2. Open it with **Open**, or drop the file on the window. You can also open it from the command line: `SunplusChannelStudio.exe english_db.bin`.
-3. Edit the list, then **Save**. Use **Save as** to keep the original file untouched.
-4. Load the saved file back onto the receiver the same way you normally do.
+3. Optional: use **Import** to bring in an up-to-date list for your satellite (or drop the list file on the window), and **Clean up** to remove channels you cannot watch.
+4. Edit the list, then **Save**. Use **Save as** to keep the original file untouched.
+5. Load the saved file back onto the receiver the same way you normally do.
 
 Always keep a copy of the original file. Loading a broken database onto a receiver can leave it with an empty channel list until you load a good one again.
 

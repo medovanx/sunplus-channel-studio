@@ -53,7 +53,7 @@
     <sys:String x:Key="Col.Name">اسم القناة</sys:String>
     <sys:String x:Key="Col.TpName">اسم الباقة</sys:String>
     <sys:String x:Key="Col.SatName">اسم القمر</sys:String>
-    <sys:String x:Key="Col.Type">النوع</sys:String>
+    <sys:String x:Key="Col.Quality">الجودة</sys:String>
     <sys:String x:Key="Col.Favorite">المفضلة</sys:String>
     <sys:String x:Key="Col.Satellite">القمر</sys:String>
     <sys:String x:Key="Col.Sid">SID</sys:String>
@@ -73,7 +73,7 @@
     <!-- Column explanations, shown when hovering a header -->
     <sys:String x:Key="ColTip.Number">ترتيب القناة في قائمة الجهاز.</sys:String>
     <sys:String x:Key="ColTip.Name">الاسم الذي يظهر على الجهاز. اضغط F2 لإعادة التسمية.</sys:String>
-    <sys:String x:Key="ColTip.Type">SD جودة عادية و HD جودة عالية. يظهر TR لأي قيمة أخرى يخزنها الجهاز.</sys:String>
+    <sys:String x:Key="ColTip.Quality">جودة الصورة حسب ترميز الفيديو: SD هو MPEG-2، و HD هو H.264، و 4K هو HEVC. فارغة للراديو.</sys:String>
     <sys:String x:Key="ColTip.Favorite">مجموعة المفضلة التي تنتمي إليها القناة.</sys:String>
     <sys:String x:Key="ColTip.Frequency">تردد الباقة بالميغاهرتز.</sys:String>
     <sys:String x:Key="ColTip.Polarization">اتجاه إرسال الإشارة عموديًا أو أفقيًا، ويبدّل رأس الطبق (LNB) بينهما.</sys:String>
@@ -152,4 +152,64 @@
     <sys:String x:Key="Val.TooLong">الاسم طويل جدًا أو يحتوي على أحرف غير مدعومة (الحد {0} حرفًا).</sys:String>
     <sys:String x:Key="Val.Frequency">التردد بالميغاهرتز (من 2000 إلى 15000).</sys:String>
     <sys:String x:Key="Val.SymbolRate">معدل الترميز بوحدة kS/s (من 1000 إلى 45000).</sys:String>
+    <!-- Import -->
+    <sys:String x:Key="Btn.Import">استيراد</sys:String>
+    <sys:String x:Key="Tip.Import">تحديث من ملف قائمة قنوات (Enigma2 lamedb أو KingOfSat أو جدول مسح)</sys:String>
+    <sys:String x:Key="Imp.Title">استيراد قائمة قنوات</sys:String>
+    <sys:String x:Key="Imp.Filter">قوائم القنوات (lamedb, *.ini, *.conf)|lamedb;lamedb5;*.ini;*.conf;*.txt|كل الملفات (*.*)|*.*</sys:String>
+    <sys:String x:Key="Imp.Source">{1} باقة و{2} قناة من ملف {0}</sys:String>
+    <sys:String x:Key="Imp.Satellite">القمر المراد تحديثه</sys:String>
+    <sys:String x:Key="Imp.Position">الموقع في الملف</sys:String>
+    <sys:String x:Key="Imp.Hint">حدد التغييرات المراد تطبيقها. لا يُحذف أي شيء، وإعادة التسمية غير محددة افتراضيًا لتبقى أسماؤك كما هي.</sys:String>
+    <sys:String x:Key="Imp.UpToDate">قائمتك مطابقة لهذا الملف بالفعل.</sys:String>
+    <sys:String x:Key="Imp.Apply">تطبيق</sys:String>
+    <sys:String x:Key="Imp.SelectAll">تحديد الكل</sys:String>
+    <sys:String x:Key="Imp.SelectNone">إلغاء التحديد</sys:String>
+    <sys:String x:Key="Imp.Selected">تم تحديد {0} من {1}</sys:String>
+    <sys:String x:Key="Imp.Done">تم استيراد {0} تغيير. احفظ الملف للإبقاء عليها.</sys:String>
+    <sys:String x:Key="Imp.CannotRead">تعذرت قراءة القائمة</sys:String>
+    <sys:String x:Key="Imp.UnknownFormat">هذا الملف ليس قائمة قنوات يمكن للبرنامج قراءتها. استخدم ملف Enigma2 lamedb أو ملف ini من KingOfSat أو ملف dtv-scan-tables.</sys:String>
+    <sys:String x:Key="Imp.NoTransponders">الملف لا يحتوي على باقات أقمار صناعية.</sys:String>
+    <sys:String x:Key="Imp.Col.Change">التغيير</sys:String>
+    <sys:String x:Key="Imp.Col.Name">الاسم</sys:String>
+    <sys:String x:Key="Imp.Col.Before">الحالي</sys:String>
+    <sys:String x:Key="Imp.Col.After">من الملف</sys:String>
+    <sys:String x:Key="Kind.NewTransponder">باقة جديدة</sys:String>
+    <sys:String x:Key="Kind.SymbolRate">معدل الترميز</sys:String>
+    <sys:String x:Key="Kind.NewChannel">قناة جديدة</sys:String>
+    <sys:String x:Key="Kind.Pids">تحديث أرقام PID</sys:String>
+    <sys:String x:Key="Kind.Rename">إعادة تسمية</sys:String>
+    <sys:String x:Key="Kind.Scrambled" xml:space="preserve"> (مشفرة)</sys:String>
+    <!-- Access, clean up -->
+    <sys:String x:Key="Col.Transponder">الباقة</sys:String>
+    <sys:String x:Key="Col.Access">الحالة</sys:String>
+    <sys:String x:Key="ColTip.Access">القنوات المجانية تعمل على هذا الجهاز. القنوات المشفرة (المدفوعة) تحتاج إلى كارت اشتراك غير موجود في الجهاز.</sys:String>
+    <sys:String x:Key="Access.Free">مجانية</sys:String>
+    <sys:String x:Key="Access.Scrambled">مشفرة</sys:String>
+    <sys:String x:Key="Btn.Cleanup">تنظيف</sys:String>
+    <sys:String x:Key="Tip.Cleanup">العثور على القنوات المشفرة والتجريبية والصامتة والمكررة وحذفها</sys:String>
+    <sys:String x:Key="Imp.IncludeScrambled">تضمين القنوات المشفرة</sys:String>
+    <sys:String x:Key="Imp.IncludeScrambledTip">لا يمكن مشاهدة القنوات المشفرة (المدفوعة) بدون كارت اشتراك، لذلك تُستبعد افتراضيًا.</sys:String>
+    <sys:String x:Key="Cln.Title">تنظيف القنوات</sys:String>
+    <sys:String x:Key="Cln.Intro">هذه القنوات لا تعرض شيئًا عادةً على جهاز استقبال مجاني. ألغِ تحديد ما تريد الإبقاء عليه، ثم احذف الباقي.</sys:String>
+    <sys:String x:Key="Cln.Scrambled">مشفرة</sys:String>
+    <sys:String x:Key="Cln.ScrambledTip">القنوات المدفوعة التي سجلها الجهاز كمشفرة أثناء البحث.</sys:String>
+    <sys:String x:Key="Cln.Placeholder">تجريبية وبدون اسم</sys:String>
+    <sys:String x:Key="Cln.PlaceholderTip">أسماء مثل Test أو Spare أو Feed، والأسماء المكونة من أرقام أو تواريخ فقط.</sys:String>
+    <sys:String x:Key="Cln.NoStreams">بدون صورة أو صوت</sys:String>
+    <sys:String x:Key="Cln.NoStreamsTip">خدمات بدون بث صورة أو صوت، وغالبًا تكون خدمات بيانات.</sys:String>
+    <sys:String x:Key="Cln.Duplicate">مكررة</sys:String>
+    <sys:String x:Key="Cln.DuplicateTip">نفس الخدمة مرة أخرى على نفس الباقة. يُحتفظ بالأولى.</sys:String>
+    <sys:String x:Key="Cln.Nothing">لا يوجد ما يحتاج إلى تنظيف.</sys:String>
+    <sys:String x:Key="Cln.Remove">حذف</sys:String>
+    <sys:String x:Key="Cln.Confirm">هل تريد حذف {0} قناة من القائمة؟</sys:String>
+    <sys:String x:Key="Cln.Done">تم حذف {0} قناة. احفظ الملف للإبقاء على التغيير.</sys:String>
+    <sys:String x:Key="Cln.Col.List">القائمة</sys:String>
+    <sys:String x:Key="Cln.Col.Reason">السبب</sys:String>
+    <sys:String x:Key="Cln.Tv">التلفاز</sys:String>
+    <sys:String x:Key="Cln.Radio">الراديو</sys:String>
+    <sys:String x:Key="Reason.Scrambled">مشفرة</sys:String>
+    <sys:String x:Key="Reason.Placeholder">تجريبية أو بدون اسم</sys:String>
+    <sys:String x:Key="Reason.NoStreams">بدون صورة أو صوت</sys:String>
+    <sys:String x:Key="Reason.Duplicate">مكررة</sys:String>
 </ResourceDictionary>

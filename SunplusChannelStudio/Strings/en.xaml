@@ -51,7 +51,7 @@
     <sys:String x:Key="Col.Name">Name</sys:String>
     <sys:String x:Key="Col.TpName">Name</sys:String>
     <sys:String x:Key="Col.SatName">Name</sys:String>
-    <sys:String x:Key="Col.Type">Type</sys:String>
+    <sys:String x:Key="Col.Quality">Quality</sys:String>
     <sys:String x:Key="Col.Favorite">Favourite</sys:String>
     <sys:String x:Key="Col.Satellite">Satellite</sys:String>
     <sys:String x:Key="Col.Sid">SID</sys:String>
@@ -71,7 +71,7 @@
     <!-- Column explanations, shown when hovering a header -->
     <sys:String x:Key="ColTip.Number">Position of the channel in the receiver list.</sys:String>
     <sys:String x:Key="ColTip.Name">Name shown on the receiver. Press F2 to rename.</sys:String>
-    <sys:String x:Key="ColTip.Type">SD is standard definition and HD is high definition. TR is shown for any other value the receiver stores.</sys:String>
+    <sys:String x:Key="ColTip.Quality">Picture quality, from the video codec: SD is MPEG-2, HD is H.264 and 4K is HEVC. Empty for radio.</sys:String>
     <sys:String x:Key="ColTip.Favorite">The favourite group the channel belongs to.</sys:String>
     <sys:String x:Key="ColTip.Frequency">Transponder frequency, in MHz.</sys:String>
     <sys:String x:Key="ColTip.Polarization">Whether the signal is sent vertically or horizontally. The dish LNB switches between them.</sys:String>
@@ -150,4 +150,64 @@
     <sys:String x:Key="Val.TooLong">Too long or unsupported characters (max {0} letters).</sys:String>
     <sys:String x:Key="Val.Frequency">Frequency is in MHz (2000 to 15000).</sys:String>
     <sys:String x:Key="Val.SymbolRate">Symbol rate is in kS/s (1000 to 45000).</sys:String>
+    <!-- Import -->
+    <sys:String x:Key="Btn.Import">Import</sys:String>
+    <sys:String x:Key="Tip.Import">Update from a channel list file (Enigma2 lamedb, KingOfSat, scan table)</sys:String>
+    <sys:String x:Key="Imp.Title">Import channel list</sys:String>
+    <sys:String x:Key="Imp.Filter">Channel lists (lamedb, *.ini, *.conf)|lamedb;lamedb5;*.ini;*.conf;*.txt|All files (*.*)|*.*</sys:String>
+    <sys:String x:Key="Imp.Source">{0}: {1} transponders, {2} channels</sys:String>
+    <sys:String x:Key="Imp.Satellite">Update satellite</sys:String>
+    <sys:String x:Key="Imp.Position">Position in file</sys:String>
+    <sys:String x:Key="Imp.Hint">Tick the changes to apply. Nothing is deleted, and renames start unticked so your own names stay.</sys:String>
+    <sys:String x:Key="Imp.UpToDate">Your list already matches this file.</sys:String>
+    <sys:String x:Key="Imp.Apply">Apply</sys:String>
+    <sys:String x:Key="Imp.SelectAll">Select all</sys:String>
+    <sys:String x:Key="Imp.SelectNone">Select none</sys:String>
+    <sys:String x:Key="Imp.Selected">{0} of {1} selected</sys:String>
+    <sys:String x:Key="Imp.Done">Imported {0} changes. Save to keep them.</sys:String>
+    <sys:String x:Key="Imp.CannotRead">Cannot read the list</sys:String>
+    <sys:String x:Key="Imp.UnknownFormat">This is not a channel list the app can read. Use an Enigma2 lamedb, a KingOfSat .ini download or a dtv-scan-tables file.</sys:String>
+    <sys:String x:Key="Imp.NoTransponders">The file has no satellite transponders.</sys:String>
+    <sys:String x:Key="Imp.Col.Change">Change</sys:String>
+    <sys:String x:Key="Imp.Col.Name">Name</sys:String>
+    <sys:String x:Key="Imp.Col.Before">Now</sys:String>
+    <sys:String x:Key="Imp.Col.After">From the file</sys:String>
+    <sys:String x:Key="Kind.NewTransponder">New transponder</sys:String>
+    <sys:String x:Key="Kind.SymbolRate">Symbol rate</sys:String>
+    <sys:String x:Key="Kind.NewChannel">New channel</sys:String>
+    <sys:String x:Key="Kind.Pids">Updated PIDs</sys:String>
+    <sys:String x:Key="Kind.Rename">Rename</sys:String>
+    <sys:String x:Key="Kind.Scrambled" xml:space="preserve"> (scrambled)</sys:String>
+    <!-- Access, clean up -->
+    <sys:String x:Key="Col.Transponder">Transponder</sys:String>
+    <sys:String x:Key="Col.Access">Access</sys:String>
+    <sys:String x:Key="ColTip.Access">Free channels can be watched on this receiver. Scrambled (pay) channels need a subscription card it does not have.</sys:String>
+    <sys:String x:Key="Access.Free">Free</sys:String>
+    <sys:String x:Key="Access.Scrambled">Scrambled</sys:String>
+    <sys:String x:Key="Btn.Cleanup">Clean up</sys:String>
+    <sys:String x:Key="Tip.Cleanup">Find scrambled, test, silent and duplicate channels and remove them</sys:String>
+    <sys:String x:Key="Imp.IncludeScrambled">Include scrambled channels</sys:String>
+    <sys:String x:Key="Imp.IncludeScrambledTip">Scrambled (pay) channels cannot be watched without a subscription card, so they are left out by default.</sys:String>
+    <sys:String x:Key="Cln.Title">Clean up channels</sys:String>
+    <sys:String x:Key="Cln.Intro">These channels usually show nothing on a free-to-air receiver. Untick any you want to keep, then remove the rest.</sys:String>
+    <sys:String x:Key="Cln.Scrambled">Scrambled</sys:String>
+    <sys:String x:Key="Cln.ScrambledTip">Pay channels the receiver marked as scrambled when it scanned them.</sys:String>
+    <sys:String x:Key="Cln.Placeholder">Test and placeholder</sys:String>
+    <sys:String x:Key="Cln.PlaceholderTip">Names such as Test, Spare or Feed, and names made only of numbers or dates.</sys:String>
+    <sys:String x:Key="Cln.NoStreams">No picture or sound</sys:String>
+    <sys:String x:Key="Cln.NoStreamsTip">Services with no video or audio stream, usually data services.</sys:String>
+    <sys:String x:Key="Cln.Duplicate">Duplicates</sys:String>
+    <sys:String x:Key="Cln.DuplicateTip">The same service appearing again on the same transponder. The first one is kept.</sys:String>
+    <sys:String x:Key="Cln.Nothing">Nothing to clean up.</sys:String>
+    <sys:String x:Key="Cln.Remove">Remove</sys:String>
+    <sys:String x:Key="Cln.Confirm">Remove {0} channels from the list?</sys:String>
+    <sys:String x:Key="Cln.Done">Removed {0} channels. Save to keep the change.</sys:String>
+    <sys:String x:Key="Cln.Col.List">List</sys:String>
+    <sys:String x:Key="Cln.Col.Reason">Why</sys:String>
+    <sys:String x:Key="Cln.Tv">TV</sys:String>
+    <sys:String x:Key="Cln.Radio">Radio</sys:String>
+    <sys:String x:Key="Reason.Scrambled">Scrambled</sys:String>
+    <sys:String x:Key="Reason.Placeholder">Test or placeholder</sys:String>
+    <sys:String x:Key="Reason.NoStreams">No picture or sound</sys:String>
+    <sys:String x:Key="Reason.Duplicate">Duplicate</sys:String>
 </ResourceDictionary>

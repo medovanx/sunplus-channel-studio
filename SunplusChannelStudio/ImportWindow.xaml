@@ -1,0 +1,53 @@
+<Window x:Class="SunplusChannelStudio.ImportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{DynamicResource Imp.Title}" Icon="Assets/icon.ico"
+        Width="960" Height="640" MinWidth="720" MinHeight="420"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+    <Grid Margin="20,16,20,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="SourceLabel" FontSize="16" FontWeight="SemiBold" />
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,14,0,0">
+            <TextBlock Text="{DynamicResource Imp.Satellite}" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <ComboBox x:Name="SatelliteBox" Width="220" SelectionChanged="Selection_Changed" />
+            <TextBlock x:Name="PositionLabel" Text="{DynamicResource Imp.Position}" VerticalAlignment="Center" Margin="24,0,8,0" />
+            <ComboBox x:Name="PositionBox" Width="120" SelectionChanged="Selection_Changed" />
+            <CheckBox x:Name="ScrambledBox" Content="{DynamicResource Imp.IncludeScrambled}" Margin="24,0,0,0"
+                      ToolTip="{DynamicResource Imp.IncludeScrambledTip}" Click="Scrambled_Click" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="2" Margin="0,12,0,8" TextWrapping="Wrap" Text="{DynamicResource Imp.Hint}"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+
+        <Grid Grid.Row="3">
+            <DataGrid x:Name="ChangesGrid" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                      CanUserReorderColumns="False" HeadersVisibility="Column" GridLinesVisibility="None"
+                      SelectionMode="Extended" />
+            <TextBlock x:Name="UpToDate" Text="{DynamicResource Imp.UpToDate}" Visibility="Collapsed"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+        </Grid>
+
+        <DockPanel Grid.Row="4" Margin="0,14,0,0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button x:Name="ApplyButton" Content="{DynamicResource Imp.Apply}" Padding="18,6" MinWidth="96"
+                        IsDefault="True" Style="{DynamicResource AccentButtonStyle}" Click="Apply_Click" />
+                <Button Content="{DynamicResource Dlg.Cancel}" Padding="18,6" MinWidth="96" Margin="8,0,0,0" IsCancel="True" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="{DynamicResource Imp.SelectAll}" Padding="12,5" Click="SelectAll_Click" />
+                <Button Content="{DynamicResource Imp.SelectNone}" Padding="12,5" Margin="6,0,0,0" Click="SelectNone_Click" />
+                <TextBlock x:Name="CountLabel" VerticalAlignment="Center" Margin="14,0,0,0"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>

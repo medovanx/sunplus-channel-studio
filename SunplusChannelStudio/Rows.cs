@@ -23,7 +23,7 @@ public abstract class Row : INotifyPropertyChanged
         string.Create(name.Length, name, (span, s) => { for (int i = 0; i < s.Length; i++) span[i] = char.IsControl(s[i]) ? ' ' : s[i]; }).TrimEnd();
 }
 
-public sealed record FavoriteGroup(ushort Value, string Key)
+public sealed record FavoriteGroup(byte Value, string Key)
 {
     /// <summary>The values the original editor recognises; any other value shows as none.</summary>
     public static readonly FavoriteGroup[] All =
@@ -34,7 +34,7 @@ public sealed record FavoriteGroup(ushort Value, string Key)
 
     public string Label => Loc.Get(Key);
 
-    public static string LabelOf(ushort value) => All.FirstOrDefault(g => g.Value == value)?.Label ?? Loc.Get("Fav.None");
+    public static string LabelOf(byte value) => All.FirstOrDefault(g => g.Value == value)?.Label ?? Loc.Get("Fav.None");
 }
 
 public sealed class ChannelRow(Channel channel, ChannelDatabase db) : Row
@@ -61,7 +61,7 @@ public sealed class ChannelRow(Channel channel, ChannelDatabase db) : Row
 
     public string Favorite => FavoriteGroup.LabelOf(Channel.Favorite);
 
-    public void SetFavorite(ushort value)
+    public void SetFavorite(byte value)
     {
         if (Channel.Favorite == value) return;
         Channel.Favorite = value;
@@ -69,7 +69,21 @@ public sealed class ChannelRow(Channel channel, ChannelDatabase db) : Row
         MarkEdited();
     }
 
-    public string Definition => Channel.Definition switch { 0 => "SD", 1 => "HD", _ => "TR" };
+    public string Access => Loc.Get(Channel.Scrambled ? "Access.Scrambled" : "Access.Free");
+
+    /// <summary>
+    /// Picture quality from the video codec the receiver stored: MPEG-2 is SD, H.264 is HD, HEVC is 4K.
+    /// Falls back to the receiver's H.264 flag when the codec is unknown; radio has none.
+    /// </summary>
+    public string Quality => Channel.Kind == ChannelKind.Radio || (Channel.VideoPid & 0x1FFF) is 0 or 0x1FFF
+        ? ""
+        : Channel.VideoType switch
+        {
+            0x1B => "HD",
+            0x24 => "4K",
+            0x01 or 0x02 => "SD",
+            _ => (Channel.Definition & 1) != 0 ? "HD" : "SD",
+        };
 
     Transponder? Tp => db.TransponderOf(Channel);
     public string Frequency => Tp?.Frequency.ToString() ?? "?";
