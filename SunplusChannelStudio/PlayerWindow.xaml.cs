@@ -18,7 +18,7 @@ public partial class PlayerWindow : Window
 
     LibVLC? _vlc;
     MediaPlayer? _player;
-    readonly IReadOnlyList<LiveStream> _streams;
+    IReadOnlyList<LiveStream> _streams;
     readonly bool _capture = Environment.GetEnvironmentVariable("SCS_CAPTURE") == "1";
     int _current = -1;
 
@@ -40,9 +40,7 @@ public partial class PlayerWindow : Window
             VolumeSlider.Value = 0;
         }
 
-        foreach (var s in streams)
-            SourceBox.Items.Add(new ComboBoxItem { Content = Describe(s), ToolTip = s.Url });
-        SourceBox.Visibility = SourceLabel.Visibility = streams.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+        FillSources();
         UpdateMute();
         UpdateFullScreenButton();
         FillQualities();
@@ -63,9 +61,50 @@ public partial class PlayerWindow : Window
             _player.EncounteredError += (_, _) => Dispatcher.BeginInvoke(TryNext);
             _player.EndReached += (_, _) => Dispatcher.BeginInvoke(TryNext);
             Video.MediaPlayer = _player;
-            SourceBox.SelectedIndex = 0;
+            if (_streams.Count == 0) { ShowSpinner(false); Status("Play.ChooseChannel"); return; } // Live TV waits for a pick
+            if (SourceBox.SelectedIndex == 0) Play(0); else SourceBox.SelectedIndex = 0;
         };
     }
+
+    /// <summary>
+    /// Live TV: the player with the whole catalogue in a sidebar. Picking a channel there plays it here, so
+    /// switching channels never opens another window.
+    /// </summary>
+    public PlayerWindow(Func<IProgress<string>, Task<StreamCatalog>> catalog) : this(Loc.Get("Live.Title"), [])
+    {
+        SidebarHost.Visibility = ListButton.Visibility = Visibility.Visible;
+        Width = 1280;
+        Height = 760;
+        Sidebar.ChannelChosen += PlayChannel;
+        Loaded += async (_, _) =>
+        {
+            await Sidebar.LoadAsync(catalog);
+            if (!_capture) Sidebar.FocusSearch();
+        };
+    }
+
+    /// <summary>Switches to another channel in this window.</summary>
+    void PlayChannel(string name, IReadOnlyList<LiveStream> streams)
+    {
+        _streams = streams;
+        Title = $"{name} - {Loc.Get("Live.Title")}";
+        ChannelLabel.Text = name;
+        _current = -1;
+        FillSources();
+        if (streams.Count == 0) return;
+        if (SourceBox.SelectedIndex == 0) Play(0); else SourceBox.SelectedIndex = 0;
+    }
+
+    void FillSources()
+    {
+        SourceBox.Items.Clear();
+        foreach (var s in _streams)
+            SourceBox.Items.Add(new ComboBoxItem { Content = Describe(s), ToolTip = s.Url });
+        SourceBox.Visibility = SourceLabel.Visibility = _streams.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    void ListButton_Click(object sender, RoutedEventArgs e) =>
+        SidebarHost.Visibility = SidebarHost.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
 
     static LibVLC CreateVlc()
     {
@@ -158,6 +197,7 @@ public partial class PlayerWindow : Window
     // ---------- Full screen ----------
 
     bool _fullScreen;
+    Visibility _sidebarBefore = Visibility.Collapsed;
     WindowState _stateBefore;
 
     /// <summary>
@@ -169,6 +209,8 @@ public partial class PlayerWindow : Window
         if (on == _fullScreen) return;
         _fullScreen = on;
         TopBar.Visibility = BottomBar.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
+        if (on) { _sidebarBefore = SidebarHost.Visibility; SidebarHost.Visibility = Visibility.Collapsed; }
+        else SidebarHost.Visibility = _sidebarBefore;
         if (on)
         {
             _stateBefore = WindowState;
@@ -202,6 +244,12 @@ public partial class PlayerWindow : Window
     void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
         if (e.Key == System.Windows.Input.Key.F11) { SetFullScreen(!_fullScreen); e.Handled = true; }
+        // Page Up and Page Down change channel in Live TV, like a remote, also in full screen.
+        else if (ListButton.Visibility == Visibility.Visible && e.Key is System.Windows.Input.Key.PageUp or System.Windows.Input.Key.PageDown)
+        {
+            Sidebar.Step(e.Key == System.Windows.Input.Key.PageDown ? 1 : -1);
+            e.Handled = true;
+        }
         else if (e.Key == System.Windows.Input.Key.Escape && _fullScreen) { SetFullScreen(false); e.Handled = true; }
     }
 

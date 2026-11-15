@@ -558,7 +558,7 @@ public partial class MainWindow : Window
 
     /// <summary>Opens the live TV browser; it needs no channel database and shares the downloaded catalogue.</summary>
     void LiveTv_Click(object sender, RoutedEventArgs e) =>
-        new LiveTvWindow(progress => EnsureCatalog(progress)) { Owner = this }.Show();
+        new PlayerWindow(progress => EnsureCatalog(progress)) { Owner = this }.Show();
 
     /// <summary>Starts the catalogue in the background after a file opens; a failure only leaves the Live column empty.</summary>
     async void PreloadCatalog()

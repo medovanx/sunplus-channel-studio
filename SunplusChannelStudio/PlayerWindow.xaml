@@ -2,9 +2,22 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
+        xmlns:local="clr-namespace:SunplusChannelStudio"
         Icon="Assets/icon.ico" Width="1024" Height="680" MinWidth="560" MinHeight="380"
         WindowStartupLocation="CenterOwner" Closed="Window_Closed" PreviewKeyDown="Window_PreviewKeyDown">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Live TV only: the channel list beside the picture. -->
+        <Border x:Name="SidebarHost" Width="360" Visibility="Collapsed" BorderThickness="0,0,1,0"
+                BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
+            <local:ChannelSidebar x:Name="Sidebar" />
+        </Border>
+
+    <Grid Grid.Column="1">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -19,6 +32,10 @@
             <ComboBox x:Name="QualityBox" DockPanel.Dock="Right" MinWidth="110" SelectionChanged="QualityBox_SelectionChanged"
                       ToolTip="{DynamicResource Play.QualityTip}" />
             <TextBlock DockPanel.Dock="Right" Text="{DynamicResource Play.Quality}" VerticalAlignment="Center" Margin="16,0,8,0" />
+            <Button x:Name="ListButton" DockPanel.Dock="Left" Padding="10,6" Margin="0,0,12,0" Visibility="Collapsed"
+                    Click="ListButton_Click" ToolTip="{DynamicResource Play.ToggleList}">
+                <TextBlock Text="&#xE700;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="16" />
+            </Button>
             <TextBlock x:Name="ChannelLabel" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"
                        TextTrimming="CharacterEllipsis" />
         </DockPanel>
@@ -59,5 +76,6 @@
                            Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
             </StackPanel>
         </DockPanel>
+    </Grid>
     </Grid>
 </Window>

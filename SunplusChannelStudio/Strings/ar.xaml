@@ -247,14 +247,12 @@
     <sys:String x:Key="Live.Loading">جارٍ تحميل قائمة البث العام...</sys:String>
     <sys:String x:Key="Live.NoMatch">لا توجد قناة مطابقة.</sys:String>
     <sys:String x:Key="Live.Country">البلد</sys:String>
-    <sys:String x:Key="Live.Sources">المصادر</sys:String>
     <sys:String x:Key="Live.AllCountries">كل البلدان</sys:String>
     <sys:String x:Key="Live.AllCategories">كل الفئات</sys:String>
     <sys:String x:Key="Live.Count">{0} من {1} قناة</sys:String>
     <sys:String x:Key="Live.SearchTip">ابحث باسم القناة</sys:String>
     <sys:String x:Key="Live.CountryTip">اعرض قنوات بلد واحد</sys:String>
     <sys:String x:Key="Live.CategoryTip">اعرض نوعاً واحداً من القنوات</sys:String>
-    <sys:String x:Key="Live.WatchTip">شاهد القناة المحددة (Enter أو نقرتان)</sys:String>
     <sys:String x:Key="Tip.WatchNone">لا يوجد بث عام على الإنترنت لهذه القناة</sys:String>
     <sys:String x:Key="Watch.Title">مشاهدة</sys:String>
     <sys:String x:Key="Watch.Loading">جارٍ تحميل قائمة البث...</sys:String>
@@ -273,6 +271,9 @@
     <sys:String x:Key="Play.NotAlwaysOn">لا يعمل طوال الوقت</sys:String>
     <sys:String x:Key="Play.Mute">كتم الصوت</sys:String>
     <sys:String x:Key="Play.Unmute">تشغيل الصوت</sys:String>
+    <sys:String x:Key="Play.ChooseChannel">اختر قناة من القائمة</sys:String>
+    <sys:String x:Key="Play.ToggleList">إظهار قائمة القنوات أو إخفاؤها</sys:String>
+    <sys:String x:Key="Live.ListTip">انقر قناة لمشاهدتها. Page Up و Page Down لتغيير القناة.</sys:String>
     <sys:String x:Key="Play.FullScreen">ملء الشاشة (F11 أو انقر مرتين على الصورة)</sys:String>
     <sys:String x:Key="Play.ExitFullScreen">الخروج من ملء الشاشة (Esc)</sys:String>
     <sys:String x:Key="Play.Notice">بث عام مُدرج في iptv-org. هذا البرنامج لا يستضيف ولا يسجل أي شيء، وقد يتوقف البث أو يُحجب في بلدك.</sys:String>

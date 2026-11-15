@@ -11,33 +11,27 @@ using SunplusChannelStudio.Core.Streams;
 namespace SunplusChannelStudio;
 
 /// <summary>
-/// Browses every public stream in the iptv-org catalogue, with no channel database needed:
-/// search, filter by country and category, and watch in the player.
+/// The Live TV channel list beside the picture: every public stream in the iptv-org catalogue, with search and
+/// country and category filters. Picking a row plays it in the same window.
 /// </summary>
-public partial class LiveTvWindow : Window
+public partial class ChannelSidebar : UserControl
 {
-    readonly Func<IProgress<string>, Task<StreamCatalog>> _load;
     readonly DispatcherTimer _searchDelay = new() { Interval = TimeSpan.FromMilliseconds(250) };
+    // Arrowing through the list waits for a short pause, so passing rows does not open a stream for each one.
+    readonly DispatcherTimer _chooseDelay = new() { Interval = TimeSpan.FromMilliseconds(450) };
     StreamCatalog? _catalog;
     List<LiveRow> _all = [];
     bool _ready;
 
-    /// <param name="load">Loads the catalogue (the main window's shared, cached copy), reporting each download.</param>
-    public LiveTvWindow(Func<IProgress<string>, Task<StreamCatalog>> load)
+    /// <summary>A channel was picked: its name and its streams, best first.</summary>
+    public event Action<string, IReadOnlyList<LiveStream>>? ChannelChosen;
+
+    public ChannelSidebar()
     {
         InitializeComponent();
-        FlowDirection = Loc.Flow;
-        _load = load;
         BuildColumns();
-        if (Environment.GetEnvironmentVariable("SCS_CAPTURE") == "1")
-        {
-            ShowActivated = false;
-            WindowStartupLocation = WindowStartupLocation.Manual;
-            Left = -5000;
-            Top = 0;
-        }
         _searchDelay.Tick += (_, _) => { _searchDelay.Stop(); ApplyFilter(); };
-        Loaded += async (_, _) => await LoadCatalog();
+        _chooseDelay.Tick += (_, _) => { _chooseDelay.Stop(); Choose(); };
     }
 
     void BuildColumns()
@@ -51,23 +45,22 @@ public partial class LiveTvWindow : Window
             {
                 Setters =
                 {
-                    new Setter(TextBlock.MarginProperty, new Thickness(8, 4, 12, 4)),
+                    new Setter(TextBlock.MarginProperty, new Thickness(8, 4, 10, 4)),
                     new Setter(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis),
                 },
             },
         };
         ChannelGrid.Columns.Add(Text("Col.Name", nameof(LiveRow.Name), star: true));
-        ChannelGrid.Columns.Add(Text("Live.Country", nameof(LiveRow.Country)));
-        ChannelGrid.Columns.Add(Text("Col.Category", nameof(LiveRow.Category)));
+        ChannelGrid.Columns.Add(Text("Live.Country", nameof(LiveRow.CountryCode)));
         ChannelGrid.Columns.Add(Text("Col.Quality", nameof(LiveRow.Quality)));
-        ChannelGrid.Columns.Add(Text("Live.Sources", nameof(LiveRow.Sources)));
     }
 
-    async Task LoadCatalog()
+    /// <param name="load">Loads the catalogue (the main window's shared, cached copy), reporting each download.</param>
+    public async Task LoadAsync(Func<IProgress<string>, Task<StreamCatalog>> load)
     {
         try
         {
-            _catalog = await _load(new Progress<string>(file => PlaceholderText.Text = Loc.Format("Watch.Downloading", file)));
+            _catalog = await load(new Progress<string>(file => PlaceholderText.Text = Loc.Format("Watch.Downloading", file)));
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.IO.IOException or System.Text.Json.JsonException)
         {
@@ -97,8 +90,10 @@ public partial class LiveTvWindow : Window
         LoadingBar.Visibility = Visibility.Collapsed;
         _ready = true;
         ApplyFilter();
-        SearchBox.Focus();
     }
+
+    /// <summary>Puts the cursor in the search box.</summary>
+    public void FocusSearch() => SearchBox.Focus();
 
     void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
     {
@@ -126,35 +121,54 @@ public partial class LiveTvWindow : Window
                 (category is null || r.CategoryValue == category) &&
                 words.All(w => r.Name.Contains(w, StringComparison.CurrentCultureIgnoreCase)))
             .ToList();
+        _suppress = true; // a new list is not a pick
         ChannelGrid.ItemsSource = shown;
+        _suppress = false;
         CountLabel.Text = Loc.Format("Live.Count", shown.Count, _all.Count);
         Placeholder.Visibility = shown.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         PlaceholderText.Text = Loc.Get("Live.NoMatch");
-        WatchButton.IsEnabled = ChannelGrid.SelectedItem is not null;
     }
 
-    void ChannelGrid_SelectionChanged(object sender, SelectionChangedEventArgs e) =>
-        WatchButton.IsEnabled = ChannelGrid.SelectedItem is not null;
+    bool _suppress;
 
-    void ChannelGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    void ChannelGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        // Only a double-click on a row plays; one on the header or scroll bar does nothing.
-        if (e.OriginalSource is DependencyObject d && ItemsControl.ContainerFromElement(ChannelGrid, d) is DataGridRow) Watch();
+        if (_suppress || ChannelGrid.SelectedItem is null) return;
+        // A click plays at once; keyboard moves wait for a pause.
+        _chooseDelay.Stop();
+        if (Mouse.LeftButton == MouseButtonState.Pressed) Choose();
+        else _chooseDelay.Start();
     }
 
     void ChannelGrid_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key != Key.Enter) return;
         e.Handled = true;
-        Watch();
+        _chooseDelay.Stop();
+        Choose();
     }
 
-    void Watch_Click(object sender, RoutedEventArgs e) => Watch();
-
-    void Watch()
+    /// <summary>Moves to the next or previous channel in the list and plays it, like a remote's channel keys.</summary>
+    public void Step(int by)
     {
-        if (ChannelGrid.SelectedItem is not LiveRow row || _catalog is null) return;
-        new PlayerWindow(row.Name, _catalog.StreamsOf(row.Channel)) { Owner = this }.Show();
+        if (ChannelGrid.Items.Count == 0) return;
+        int next = Math.Clamp(ChannelGrid.SelectedIndex + by, 0, ChannelGrid.Items.Count - 1);
+        if (next == ChannelGrid.SelectedIndex) return;
+        _suppress = true;
+        ChannelGrid.SelectedIndex = next;
+        _suppress = false;
+        ChannelGrid.ScrollIntoView(ChannelGrid.SelectedItem);
+        _chooseDelay.Stop();
+        _chooseDelay.Start();
+    }
+
+    LiveRow? _playing;
+
+    void Choose()
+    {
+        if (ChannelGrid.SelectedItem is not LiveRow row || _catalog is null || row == _playing) return;
+        _playing = row;
+        ChannelChosen?.Invoke(row.Name, _catalog.StreamsOf(row.Channel));
     }
 
     /// <summary>One catalogue channel as shown in the list; everything is worked out once when the list loads.</summary>
@@ -163,10 +177,9 @@ public partial class LiveTvWindow : Window
         public CatalogChannel Channel { get; } = channel;
         public string Name { get; } = channel.Name;
         public string Country { get; } = CountryName(channel.Country);
+        public string CountryCode { get; } = channel.Country ?? "";
         public ChannelCategory CategoryValue { get; } = CategoryRules.Default.FromCatalog(channel.Categories) ?? ChannelCategory.General;
-        public string Category => Loc.Get("Cat." + CategoryValue);
         public string Quality { get; } = catalog.StreamsOf(channel).FirstOrDefault()?.Quality ?? "";
-        public int Sources { get; } = catalog.StreamsOf(channel).Count;
 
         static string CountryName(string? code)
         {
