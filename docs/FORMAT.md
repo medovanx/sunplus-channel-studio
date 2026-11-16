@@ -109,3 +109,11 @@ The type can be told from the file size: subtract the header, satellites and tra
 ## Text
 
 Names follow DVB SI text rules (ETSI EN 300 468, annex A). A first byte below `0x20` selects the character table, for example `0x02` for ISO 8859-6 (Arabic). Without one, the text is Latin. Fields are zero padded and need at least one terminating zero.
+
+## The live list in a flash read
+
+A full read of the receiver's SPI flash holds the list it is using, apart from any channel file. On a 4 MiB 1506F read this rebuilt the loaded list byte for byte.
+
+- A store block starts on a 4 KiB boundary with the marker `EF BE AD DE`, then a zero word, two words not yet identified, and the counts: transponders, TV channels, radio channels and satellites (all u32). The satellite records follow at offset 32.
+- Two gzip blobs, each behind a u32 length and starting on a 4 KiB boundary, hold the tables. The transponder table is 36-byte records (2500 slots on the checked read, found before the store). The channel table is records of the database's channel size (5980 slots of 92 bytes, found after the store). Unused slots have kind 0.
+- The channel table keeps channels in storage slots. Order lists inside the store block give the order the receiver shows: pairs of u16 (slot, tag), with tag `0x0102` for TV and `0x0202` for radio, as many as the counts.

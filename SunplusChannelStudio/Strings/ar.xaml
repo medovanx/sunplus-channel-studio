@@ -31,6 +31,7 @@
     <sys:String x:Key="New.Create">إنشاء</sys:String>
     <sys:String x:Key="New.Untitled">بدون اسم</sys:String>
     <sys:String x:Key="New.Done">قاعدة جديدة بها {0} تردد على {1}. استخدم حفظ باسم للاحتفاظ بها.</sys:String>
+    <sys:String x:Key="Flash.Done">تمت قراءة {0} قناة تلفزيون و{1} قناة راديو من نسخة الذاكرة {2}. استخدم حفظ باسم للاحتفاظ بها كملف قنوات.</sys:String>
 
     <!-- Tabs -->
     <sys:String x:Key="Tab.Tv">التلفاز ({0})</sys:String>

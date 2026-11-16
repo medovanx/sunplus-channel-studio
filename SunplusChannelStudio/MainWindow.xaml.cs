@@ -194,17 +194,33 @@ public partial class MainWindow : Window
         if (dialog.ShowDialog(this) == true) OpenFile(dialog.FileName, confirmed: true);
     }
 
-    void OpenFile(string path, bool confirmed = false)
+    async void OpenFile(string path, bool confirmed = false)
     {
         if (!confirmed && !ConfirmDiscard()) return;
         ChannelDatabase db;
-        try { db = ChannelDatabase.Load(path); }
+        bool fromFlash = false;
+        Cursor = Cursors.Wait;
+        try
+        {
+            // A channel file opens as it is; a full read of the receiver's flash chip gives the list the box holds.
+            (db, fromFlash) = await Task.Run(() =>
+            {
+                var bytes = File.ReadAllBytes(path);
+                try { return (ChannelDatabase.Parse(bytes), false); }
+                catch (DatabaseFormatException) when (FlashDump.Looks(bytes)) { return (FlashDump.Read(bytes), true); }
+            });
+        }
         catch (Exception ex) when (ex is DatabaseFormatException or IOException or UnauthorizedAccessException)
         {
             Say(ex is DatabaseFormatException f ? Loc.Get("Fmt." + f.Problem) : ex.Message, "Dlg.CannotOpen", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
-        ShowDatabase(db, path);
+        finally { Cursor = null; }
+        if (!fromFlash) { ShowDatabase(db, path); return; }
+        // Saving must never overwrite the flash read, so the list opens untitled.
+        ShowDatabase(db, null);
+        MarkDirty();
+        StatusLabel.Text = Loc.Format("Flash.Done", db.TvChannels.Count, db.RadioChannels.Count, Path.GetFileName(path));
     }
 
     /// <summary>Builds a new database from the open transponder lists, for users with no database yet.</summary>

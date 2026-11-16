@@ -29,6 +29,7 @@
     <sys:String x:Key="New.Create">Create</sys:String>
     <sys:String x:Key="New.Untitled">Untitled</sys:String>
     <sys:String x:Key="New.Done">New database with {0} transponders on {1}. Use Save as to keep it.</sys:String>
+    <sys:String x:Key="Flash.Done">Read {0} TV and {1} radio channels from the flash read {2}. Use Save as to keep them as a channel file.</sys:String>
 
     <!-- Tabs -->
     <sys:String x:Key="Tab.Tv">TV ({0})</sys:String>
